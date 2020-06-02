@@ -3,5 +3,6 @@ networkx
 datasketch
 xxhash
 tqdm
+spacy
 
 kaggle
