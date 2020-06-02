@@ -30,3 +30,9 @@ This repository is essentially academic research; thanks Adzuna!
 
 You can run the whole pipeline in the [src](/src) folder by running `./run.sh`, or run each of the numbered steps independently.
 The whole process takes about 1.5 hours on my machine.
+
+# Todo
+
+Can we add new data sources like https://www.kaggle.com/PromptCloudHQ/usbased-jobs-from-dicecom and https://www.kaggle.com/PromptCloudHQ/us-jobs-on-monstercom?
+
+Can we get any other sources of job ads?
