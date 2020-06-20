@@ -8,25 +8,31 @@ T = TypeVar('T')
 WHITESPACE = re.compile('\s+')
 END_SENTENCE = re.compile('[.!?]\s+')
 
-def tokenize(s:str) -> List[str]:
+
+def tokenize(s: str) -> List[str]:
     '''Split a string into tokens'''
     return WHITESPACE.split(s)
 
-def untokenize(ts:List[str]) -> str:
+
+def untokenize(ts: List[str]) -> str:
     '''Join a list of tokens into a string'''
     return ' '.join(ts)
 
-def sentencize(s:str) -> List[str]:
+
+def sentencize(s: str) -> List[str]:
     '''Split a string into a list of sentences'''
     return END_SENTENCE.split(s)
 
-def unsentencise(ts:List[str]) -> str:
+
+def unsentencise(ts: List[str]) -> str:
     '''Join a list of sentences into a string'''
     return '. '.join(ts)
 
-def html_unsentencise(ts:List[str]) -> str:
+
+def html_unsentencise(ts: List[str]) -> str:
     '''Joing a list of sentences into HTML for display'''
     return ''.join(f'<p>{t}</p>' for t in ts)
+
 
 def minhash(seq: List[str], num_perm: int = 128) -> MinHash:
     """Return the minhash of seq using num_perm permutations"""
@@ -35,9 +41,11 @@ def minhash(seq: List[str], num_perm: int = 128) -> MinHash:
         m.update(s.encode('utf8'))
     return LeanMinHash(m)
 
+
 def minhash_lsh_probability(s: float, bands: int, rows: int) -> float:
     """Probability of Minhash LSH returning item with similarity s"""
     return 1 - (1 - s**rows)**bands
+
 
 def lsh_similar(minhashes: Dict[T, MinHash], num_perm: int, bands: int, rows: int) -> Generator[Tuple[T, T], None, None]:
     """Yields all of similar pairs of minhashes using LSH
@@ -56,20 +64,24 @@ def lsh_similar(minhashes: Dict[T, MinHash], num_perm: int, bands: int, rows: in
         # Add to the seen items
         lsh.insert(i, mh)
 
-def subseq(seq:List[T], n:int=1) -> List[Tuple[T, ...]]:
+
+def subseq(seq: List[T], n: int = 1) -> List[Tuple[T, ...]]:
     """Returns all contiguous subsequences of seq of length n
-    
+
     Example: subseq([1,2,3,4], n=2) == [(1,2), (2,3), (3,4)]
     """
     return [tuple(seq[i:i+n]) for i in range(0, len(seq)+1-n)]
 
-def shingle(seq:List[str], n:int=1) -> List[str]:
+
+def shingle(seq: List[str], n: int = 1) -> List[str]:
     """Returns all subsequences of tokens of length n"""
     return [untokenize(list(s)) for s in subseq(seq, n)]
+
 
 def jaccard(a: set, b: set) -> float:
     n = len(a.intersection(b))
     return n / (len(a) + len(b) - n)
+
 
 def relevance(text_a, text_b, k):
     bag_a = set(shingle(tokenize(text_a), k))
