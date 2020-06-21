@@ -2,7 +2,10 @@ from typing import Generator, FrozenSet, Dict, List, Any, Iterable
 import re
 from itertools import groupby
 import rdflib
-from rdflib.namespace import RDF
+from rdflib.namespace import RDF, Namespace
+
+# https://github.com/RDFLib/rdflib/issues/1120
+SDO_NAMESPACES = [Namespace('http://schema.org/'), Namespace('https://schema.org/')]
 
 WEB_DATA_COMMONS_JOB_POSTINGS = [
     'http://data.dws.informatik.uni-mannheim.de/structureddata/2013-11/quads/schemaOrgDatasetsByPage/schemaorgJobPosting.nq.gz',
@@ -38,19 +41,20 @@ def parse_nquads(lines: Iterable[str]) -> Generator[rdflib.Graph, None, None]:
         yield graph
 
 
-def get_blanks_of_type(
-    graph: rdflib.Graph, rdf_type: rdflib.term.URIRef
+def get_blanks_of_sdo_type(
+    graph: rdflib.Graph, sdo_type: str
 ) -> Generator[rdflib.term.BNode, None, None]:
-    """Generates all Blank Nodes with a given type in RDF syntax"""
-    for subject in graph.subjects(RDF.type, rdf_type):
-        if type(subject) == rdflib.term.BNode:
-            yield subject
+    """Generates all Blank Nodes with a given RDF type from schema.org"""
+    for namespace in SDO_NAMESPACES:
+        rdf_type = namespace[sdo_type]
+        for subject in graph.subjects(RDF.type, rdf_type):
+            if isinstance(subject, rdflib.term.BNode):
+                yield subject
 
 
 def get_job_postings(graph: rdflib.Graph) -> Generator[rdflib.term.BNode, None, None]:
     """Generates all Blank nodes that are schema.org JobPostings in the graph"""
-    return get_blanks_of_type(graph, rdflib.URIRef('http://schema.org/JobPosting'))
-
+    return get_blanks_of_sdo_type(graph, 'JobPosting')
 
 def get_blank_subjects(graph: rdflib.Graph) -> FrozenSet[rdflib.term.BNode]:
     """Returns all blank subjects in graph"""
@@ -98,7 +102,7 @@ def graph_to_dict(graph: rdflib.graph.Graph, root: rdflib.term.BNode) -> Dict[st
     return result
 
 
-def extract_nquads_of_type(lines: Iterable[str], rdf_type: rdflib.term.URIRef) -> Generator[Dict[str, List[Any]], None, None]:
+def extract_nquads_of_type(lines: Iterable[str], sdo_type: str) -> Generator[Dict[str, List[Any]], None, None]:
     for graph in parse_nquads(lines):
-        for node in get_blanks_of_type(graph, rdf_type):
+        for node in get_blanks_of_sdo_type(graph, sdo_type):
             yield graph_to_dict(graph, node)
