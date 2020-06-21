@@ -2,6 +2,7 @@ from typing import Generator, FrozenSet, Dict, List, Any, Iterable
 import re
 from itertools import groupby
 import rdflib
+from rdflib.namespace import RDF
 
 WEB_DATA_COMMONS_JOB_POSTINGS = [
     'http://data.dws.informatik.uni-mannheim.de/structureddata/2013-11/quads/schemaOrgDatasetsByPage/schemaorgJobPosting.nq.gz',
@@ -15,10 +16,6 @@ WEB_DATA_COMMONS_JOB_POSTINGS = [
     'http://data.dws.informatik.uni-mannheim.de/structureddata/2019-12/quads/classspecific/md/schema_JobPosting.gz',
     'http://data.dws.informatik.uni-mannheim.de/structureddata/2019-12/quads/classspecific/json/schema_JobPosting.gz',
 ]
-
-RDF_TYPE_URI = rdflib.term.URIRef(
-    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
-
 
 RDF_QUAD_LABEL_RE = re.compile("[ \t]+<([^>]*)>[ \t].\n$")
 def get_quad_label(line: str) -> str:
@@ -45,14 +42,14 @@ def get_blanks_of_type(
     graph: rdflib.Graph, rdf_type: rdflib.term.URIRef
 ) -> Generator[rdflib.term.BNode, None, None]:
     """Generates all Blank Nodes with a given type in RDF syntax"""
-    for subject in graph.subjects(RDF_TYPE_URI, rdf_type):
+    for subject in graph.subjects(RDF.type, rdf_type):
         if type(subject) == rdflib.term.BNode:
             yield subject
 
 
 def get_job_postings(graph: rdflib.Graph) -> Generator[rdflib.term.BNode, None, None]:
     """Generates all Blank nodes that are schema.org JobPostings in the graph"""
-    return get_blanks_of_type(graph, rdflib.term.URIRef("http://schema.org/JobPosting"))
+    return get_blanks_of_type(graph, rdflib.URIRef('http://schema.org/JobPosting'))
 
 
 def get_blank_subjects(graph: rdflib.Graph) -> FrozenSet[rdflib.term.BNode]:
