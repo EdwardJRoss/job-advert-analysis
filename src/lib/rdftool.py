@@ -74,25 +74,30 @@ class CycleError(Exception):
     pass
 
 
-def graph_to_dict(
+def _graph_to_dict(
     graph: rdflib.graph.Graph, root: rdflib.term.BNode, seen: frozenset = frozenset()
 ) -> Dict[str, List[Any]]:
-    """Returns a dictionary mapping predicates to lists of objects
-
-    Every Blank node is recursively mapped into a dictionary of predicates to lists of objects.
-    Raises a CycleError if the objects of a Blank Node contains the node itself.
-    """
-    result = {'_label': [graph.identifier.toPython()]}  # type: Dict[str, List[Any]]
+    result = {}  # type: Dict[str, List[Any]]
     for predicate, obj in graph.predicate_objects(root):
         predicate = predicate.toPython()
         if obj in seen:
             raise CycleError(
                 f"Cyclic reference to {obj} in {graph.identifier}")
         elif type(obj) == rdflib.term.BNode:
-            obj = graph_to_dict(graph, obj, seen.union([obj]))
+            obj = _graph_to_dict(graph, obj, seen.union([obj]))
         else:
             obj = obj.toPython()
         result[predicate] = result.get(predicate, []) + [obj]
+    return result
+
+def graph_to_dict(graph: rdflib.graph.Graph, root: rdflib.term.BNode) -> Dict[str, List[Any]]:
+    """Returns a dictionary mapping predicates to lists of objects
+
+    Every Blank node is recursively mapped into a dictionary of predicates to lists of objects.
+    Raises a CycleError if the objects of a Blank Node contains the node itself.
+    """
+    result = _graph_to_dict(graph, root)
+    result['_label'] = [graph.identifier.toPython()]
     return result
 
 
