@@ -20,7 +20,9 @@ WEB_DATA_COMMONS_JOB_POSTINGS = [
     'http://data.dws.informatik.uni-mannheim.de/structureddata/2019-12/quads/classspecific/json/schema_JobPosting.gz',
 ]
 
-RDF_QUAD_LABEL_RE = re.compile("[ \t]+<([^>]*)>[ \t].\n$")
+RDF_QUAD_LABEL_RE = re.compile("[ \t]+<([^ \t]*)>[ \t].\n$")
+
+
 def get_quad_label(line: str) -> str:
     """Returns the content of an IRI Label of a single N-Quad
 
