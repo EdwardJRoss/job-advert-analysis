@@ -5,7 +5,8 @@ import rdflib
 from rdflib.namespace import RDF, Namespace
 
 # https://github.com/RDFLib/rdflib/issues/1120
-SDO_NAMESPACES = [Namespace('http://schema.org/'), Namespace('https://schema.org/')]
+SDO_NAMESPACES = [Namespace('http://schema.org/'),
+                  Namespace('https://schema.org/')]
 
 WEB_DATA_COMMONS_JOB_POSTINGS = [
     'http://data.dws.informatik.uni-mannheim.de/structureddata/2013-11/quads/schemaOrgDatasetsByPage/schemaorgJobPosting.nq.gz',
@@ -36,11 +37,20 @@ def get_quad_label(line: str) -> str:
     """
     return RDF_QUAD_LABEL_RE.search(line).group(1)
 
+def truncate_message(msg, max_char=255):
+    msg = str(msg)
+    if len(msg) > max_char:
+        msg = msg[:max_char-3] + '...'
+    return msg
+
 def parse_nquads(lines: Iterable[str]) -> Generator[rdflib.Graph, None, None]:
     for group, quad_lines in groupby(lines, get_quad_label):
         graph = rdflib.Graph(identifier=group)
-        graph.parse(data=''.join(quad_lines), format='nquads')
-        yield graph
+        try:
+            graph.parse(data=''.join(quad_lines), format='nquads')
+            yield graph
+        except rdflib.plugins.parsers.ntriples.ParseError as e:
+            logging.error(truncate_message(e))
 
 
 def get_blanks_of_sdo_type(
@@ -57,6 +67,7 @@ def get_blanks_of_sdo_type(
 def get_job_postings(graph: rdflib.Graph) -> Generator[rdflib.term.BNode, None, None]:
     """Generates all Blank nodes that are schema.org JobPostings in the graph"""
     return get_blanks_of_sdo_type(graph, 'JobPosting')
+
 
 def get_blank_subjects(graph: rdflib.Graph) -> FrozenSet[rdflib.term.BNode]:
     """Returns all blank subjects in graph"""
@@ -92,6 +103,7 @@ def _graph_to_dict(
             obj = obj.toPython()
         result[predicate] = result.get(predicate, []) + [obj]
     return result
+
 
 def graph_to_dict(graph: rdflib.graph.Graph, root: rdflib.term.BNode) -> Dict[str, List[Any]]:
     """Returns a dictionary mapping predicates to lists of objects
