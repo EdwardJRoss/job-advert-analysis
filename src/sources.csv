@@ -1,0 +1,8 @@
+key,query,parser,start_week
+seek,seek.com.au/job/*,jsonld,2016-36
+engineeringjobs,www.engineeringjobs.com.au/job/*,jsonld,
+davidsonwp,www.davidsonwp.com/job/*,,
+cgcrecruitment,www.cgcrecruitment.com/job/*,,
+launchrecruitment,jobs.launchrecruitment.com.au/job/*,,
+ethicaljobs1,ethicaljobs.com.au/members/*,,
+ethicaljobs2,ethicaljobs.com.au/Members/*,,
