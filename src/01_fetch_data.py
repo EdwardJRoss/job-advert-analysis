@@ -20,10 +20,11 @@ def index_files():
 
 
 def download_from_index_file(path: Path) -> Generator[ArcWarcRecord, None, None]:
-    df = pd.read_csv(path)
-    nrow = len(df)
+    with open(path, 'rt') as f:
+        rows = list(csv.DictReader(f))
+    nrow = len(rows)
     logging.info('Processing %s rows', nrow)
-    for _idx, row in tqdm(df.iterrows(), total=nrow):
+    for row in tqdm(rows):
         content = fetch_cc(row['filename'], row['offset'], row['length'])
         archive_iterator = ArchiveIterator(BytesIO(content))
         # Assume exactly one record
