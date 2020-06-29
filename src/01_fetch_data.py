@@ -1,4 +1,5 @@
 from io import BytesIO
+from multiprocessing import Pool
 import logging
 from typing import Generator, Iterable
 from pathlib import Path
@@ -18,18 +19,20 @@ INDEX_DIR = Path('../data/00_sources')
 def index_files():
     return list(INDEX_DIR.glob('*/*.csv'))
 
+def fetch_cc_row(row):
+    return fetch_cc(row['filename'], row['offset'], row['length'])
 
-def download_from_index_file(path: Path) -> Generator[ArcWarcRecord, None, None]:
+def download_from_index_file(path: Path, nthread: int=32) -> Generator[ArcWarcRecord, None, None]:
     with open(path, 'rt') as f:
         rows = list(csv.DictReader(f))
     nrow = len(rows)
     logging.info('Processing %s rows', nrow)
-    for row in tqdm(rows):
-        content = fetch_cc(row['filename'], row['offset'], row['length'])
-        archive_iterator = ArchiveIterator(BytesIO(content))
-        # Assume exactly one record
-        warc = next(archive_iterator)
-        yield warc
+    with Pool(nthread) as p:
+        for content in tqdm(p.imap_unordered(fetch_cc_row, rows), total=nrow):
+            archive_iterator = ArchiveIterator(BytesIO(content))
+            # Assume exactly one record
+            warc = next(archive_iterator)
+            yield warc
 
 
 SOURCES = Path('./sources.csv')
