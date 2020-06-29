@@ -1,4 +1,3 @@
-from io import BytesIO
 import json
 from functools import lru_cache
 import requests
@@ -44,15 +43,12 @@ def cdx_query(api, query):
 
 
 CC_DATA_URL = 'https://commoncrawl.s3.amazonaws.com/'
-def fetch_cc(filename: str, offset: int, length: int) -> ArcWarcRecord:
+def fetch_cc(filename: str, offset: int, length: int) -> bytes:
     data_url = CC_DATA_URL + filename
     start_byte = int(offset)
     end_byte = start_byte + int(length)
     headers = {'Range': f'bytes={start_byte}-{end_byte}'}
     r = requests.get(data_url, headers=headers)
-    archive_iterator = ArchiveIterator(BytesIO(r.content))
-    # Assume exactly one record
-    warc = next(archive_iterator)
-    return warc
+    return r.content
 
 
