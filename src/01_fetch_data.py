@@ -9,6 +9,7 @@ from warcio.recordloader import ArcWarcRecord
 from warcio.archiveiterator import ArchiveIterator
 from warcio.warcwriter import WARCWriter
 from lib.cc import fetch_cc
+from lib.io import AtomicFileWriter
 from tqdm import tqdm
 
 DEST_DIR = Path('../data/01_raw')
@@ -54,7 +55,7 @@ def source_name_to_warc_gz(path: Path, outdir: Path) -> Path:
 
 def write_source(source, dest_name):
     warcs = download_from_index_file(source)
-    with open(dest_name, 'wb') as output:
+    with AtomicFileWriter(dest_name, 'wb') as output:
         writer = WARCWriter(output, gzip=True)
         for warc in warcs:
             writer.write_record(warc)
@@ -62,8 +63,11 @@ def write_source(source, dest_name):
 
 def download_sources(sources, dest_dir):
     for source in sources:
-        logging.info('Processing %s', source)
         dest_name = source_name_to_warc_gz(source, dest_dir)
+        if dest_name.exists():
+            logging.info('Skipping %s: Destination Exists', source)
+            continue
+        logging.info('Processing %s', source)
         dest_name.parent.mkdir(exist_ok=True)
         write_source(source, dest_name)
 
