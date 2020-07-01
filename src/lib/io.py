@@ -1,7 +1,6 @@
 import typing
 import pathlib
 import os
-import tempfile
 
 pathlike = typing.Union[str, pathlib.Path]
 

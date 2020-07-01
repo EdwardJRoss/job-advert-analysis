@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from io import BytesIO
 from multiprocessing import Pool
 import logging

@@ -1,18 +1,53 @@
 #!/usr/bin/env python
+import logging
 import pandas as pd
+import pickle
 from pathlib import Path
+from warcio.archiveiterator import ArchiveIterator
+from lib.io import AtomicFileWriter
+from lib.extract import parse_warc
+from tqdm import tqdm
 
 INPUT = Path('../data/01_raw')
 OUTPUT = Path('../data/02_primary')
 
-OUTPUT.mkdir(exist_ok=True)
+def read_input(filename):
+    with open(filename, 'rb') as stream:
+        for record in tqdm(ArchiveIterator(stream)):
+            assert record.rec_type == 'response'
+            yield record
 
-df = pd.concat([pd
-                .read_csv(fname)
-                .assign(split=fname.name.split('_')[0])
-                for fname in INPUT.glob('*.csv')],
-                ignore_index=True)
+SOURCES = Path('./sources.csv')
+def read_sources():
+    return pd.read_csv(SOURCES).set_index('key')
 
-df['Title'] = df['Title'].fillna('')
+if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+    OUTPUT.mkdir(exist_ok=True)
 
-df.to_feather(OUTPUT / 'ads.feather')
+    sources = read_sources()
+
+    input_ext = '.warc.gz'
+    input_paths = list(INPUT.glob(f'*/*{input_ext}'))
+
+    for path in input_paths:
+        source_key = path.parent.name
+        source_crawl = path.name[:-len(input_ext)]
+        source_row = sources.loc[source_key]
+        dest_file = OUTPUT / source_key / (source_crawl + '.pkl')
+        if dest_file.exists():
+            logging.info('Skipping %s from %s with %s', path, source_key, source_row['parser'])
+            continue
+        dest_file.parent.mkdir(exist_ok=True)
+
+        logging.info('Processing %s from %s with %s', path, source_key, source_row['parser'])
+        source_data = read_input(path)
+
+        data = [job_post for datum in source_data for job_post in parse_warc(datum, source_row['parser'])]
+        logging.info('Parsed %s jobs', len(data))
+
+        with AtomicFileWriter(dest_file, 'wb') as f:
+            pickle.dump(data, f)
+
+
+
