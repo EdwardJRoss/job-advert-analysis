@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import logging
 import csv
 from pathlib import Path
 import pandas as pd
@@ -20,18 +21,22 @@ def write_indexes(sources, indexes, output_dir):
         for source in sources:
             path = output_dir / source['key'] / f'{idx_key}.csv'
             if path.exists():
+                logging.info('Skipping %s', path)
                 continue
             path.parent.mkdir(exist_ok=True)
 
             query = source['query']
+            logging.info('Querying %s', query)
             assert query.endswith('*')
 
-            # Source
+            logging.info('Writing %s', path)
             data = list(cdx_query(api, query))
             df = pd.DataFrame(data)
             df.to_csv(path, index=False)
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+
     OUTPUT_DIR = Path('../data/00_sources')
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
