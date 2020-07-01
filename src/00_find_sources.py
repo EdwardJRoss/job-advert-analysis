@@ -29,9 +29,9 @@ def write_indexes(sources, indexes, output_dir):
             logging.info('Querying %s', query)
             assert query.endswith('*')
 
-            logging.info('Writing %s', path)
             data = list(cdx_query(api, query))
             df = pd.DataFrame(data)
+            logging.info('Writing %s fetches to %s', len(df), path)
             df.to_csv(path, index=False)
 
 if __name__ == '__main__':
