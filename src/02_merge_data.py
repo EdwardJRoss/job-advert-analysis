@@ -46,7 +46,7 @@ if __name__ == '__main__':
         data = [job_post for datum in source_data for job_post in parse_warc(datum, source_row['parser'])]
         logging.info('Parsed %s jobs', len(data))
 
-        with AtomicFileWriter(dest_file, 'wb') as f:
+        with AtomicFileWriter(dest_file) as f:
             pickle.dump(data, f)
 
 

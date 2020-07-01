@@ -56,7 +56,7 @@ def source_name_to_warc_gz(path: Path, outdir: Path) -> Path:
 
 def write_source(source, dest_name):
     warcs = download_from_index_file(source)
-    with AtomicFileWriter(dest_name, 'wb') as output:
+    with AtomicFileWriter(dest_name) as output:
         writer = WARCWriter(output, gzip=True)
         for warc in warcs:
             writer.write_record(warc)

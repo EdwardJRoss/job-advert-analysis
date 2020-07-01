@@ -4,11 +4,9 @@ import os
 
 pathlike = typing.Union[str, pathlib.Path]
 
-
-# Compare with https://github.com/python/cpython/blob/master/Lib/tempfile.py
 class AtomicFileWriter:
     """Writes a file to filename only on successful completion"""
-    def __init__(self, filename: pathlike, mode:str='w+b', temp_filename: typing.Optional[pathlike]= None):
+    def __init__(self, filename: pathlike, mode:str='xb', temp_filename: typing.Optional[pathlike]= None):
         self.filename = filename
         self.mode = mode
         if temp_filename is None:
