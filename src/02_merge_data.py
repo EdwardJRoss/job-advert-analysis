@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import logging
 import pandas as pd
-import pickle
+import json
 from pathlib import Path
 from warcio.archiveiterator import ArchiveIterator
 from lib.io import AtomicFileWriter
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         source_key = path.parent.name
         source_crawl = path.name[:-len(input_ext)]
         source_row = sources.loc[source_key]
-        dest_file = OUTPUT / source_key / (source_crawl + '.pkl')
+        dest_file = OUTPUT / source_key / (source_crawl + '.jsonl')
         if dest_file.exists():
             logging.info('Skipping %s from %s with %s', path, source_key, source_row['parser'])
             continue
@@ -43,11 +43,11 @@ if __name__ == '__main__':
         logging.info('Processing %s from %s with %s', path, source_key, source_row['parser'])
         source_data = read_input(path)
 
-        data = [job_post for datum in source_data for job_post in parse_warc(datum, source_row['parser'])]
-        logging.info('Parsed %s jobs', len(data))
+        data = (job_post for datum in source_data for job_post in parse_warc(datum, source_row['parser']))
 
         with AtomicFileWriter(dest_file) as f:
-            pickle.dump(data, f)
-
-
-
+            for datum in data:
+                line = json.dumps(datum)
+                line += '\n'
+                bline = line.encode('utf-8')
+                f.write(bline)
