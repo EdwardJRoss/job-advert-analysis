@@ -21,6 +21,7 @@ def cdx_num_pages(api, query):
                      'output': 'json',
                      'showNumPages': True,
                  })
+    r.raise_for_status()
     data = r.json()
     return data['pages']
 
@@ -49,6 +50,7 @@ def fetch_cc(filename: str, offset: int, length: int) -> bytes:
     end_byte = start_byte + int(length)
     headers = {'Range': f'bytes={start_byte}-{end_byte}'}
     r = requests.get(data_url, headers=headers)
+    r.raise_for_status()
     return r.content
 
 
