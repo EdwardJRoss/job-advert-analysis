@@ -1,8 +1,6 @@
 import json
 from functools import lru_cache
 import requests
-from warcio.archiveiterator import ArchiveIterator
-from warcio.recordloader import ArcWarcRecord
 
 def jsonl_loads(jsonl):
     return [json.loads(line) for line in jsonl.splitlines()]
