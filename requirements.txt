@@ -5,4 +5,9 @@ xxhash
 tqdm
 spacy
 
+warcio
+demjson
+extruct
+rdflib < 5.0.0
+
 kaggle
