@@ -12,32 +12,34 @@ def get_indexes():
     r.raise_for_status()
     return r.json()
 
-def cdx_num_pages(api, query):
+def cdx_num_pages(api, query, filters=None):
     r = requests.get(api,
                  params = {
                      'url': query,
                      'output': 'json',
                      'showNumPages': True,
+                     'filter': filters or [],
                  })
     r.raise_for_status()
     data = r.json()
     return data['pages']
 
-def cdx_query_page(api, query, page=0):
+def cdx_query_page(api, query, page=0, filters=None):
     r = requests.get(api,
                      params = {
                      'url': query,
                      'output': 'json',
-                     'filter': ['=status:200'],
+                     'filter': filters or [],
                      'page': page
                      })
     r.raise_for_status()
     results = jsonl_loads(r.text)
     return results
 
-def cdx_query(api, query):
-    for page in range(cdx_num_pages(api, query)):
-        for result in cdx_query_page(api, query, page):
+def cdx_query(api, query, filters=None):
+    filters = ['=status:200'] + (filters or [])
+    for page in range(cdx_num_pages(api, query, filters)):
+        for result in cdx_query_page(api, query, page, filters):
             yield result
 
 
@@ -50,5 +52,3 @@ def fetch_cc(filename: str, offset: int, length: int) -> bytes:
     r = requests.get(data_url, headers=headers)
     r.raise_for_status()
     return r.content
-
-

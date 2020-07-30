@@ -26,10 +26,11 @@ def write_indexes(sources, indexes, output_dir):
             path.parent.mkdir(exist_ok=True)
 
             query = source['query']
-            logging.info('Querying %s', query)
+            query_filter = source['filter'] or None
+            logging.info('Querying %s with filter %s', query, query_filter)
             assert query.endswith('*')
 
-            data = list(cdx_query(api, query))
+            data = list(cdx_query(api, query, [query_filter]))
             df = pd.DataFrame(data)
             logging.info('Writing %s fetches to %s', len(df), path)
             df.to_csv(path, index=False)
