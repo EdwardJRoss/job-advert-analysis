@@ -24,20 +24,10 @@ def parse_warc(warc: ArcWarcRecord, parser: str) -> Generator[Dict[Any, Any], No
         data = [parse_iworkfornsw(html)]
     elif parser == 'probono':
         data = [parse_probono(html)]
-    elif parser == 'js_redux':
-        # TODO: Get source encoding? Interpret as bytes?
-        result = parse_js_redux(html.decode('utf-8'))
-        if result is None:
-            data = []
-        else:
-            data = [result]
-    elif parser == 'js_app':
-        # TODO: Get source encoding? Interpret as bytes?
-        result = parse_js_app(html.decode('utf-8'))
-        if result is None:
-            data = []
-        else:
-            data = [result]
+    elif parser == 'sk':
+        data = parse_sk(html)
+    elif parser == 'gt':
+        data = parse_gt(html)
     else:
         raise ValueError(f'Unkown parser {parser}')
 
@@ -193,11 +183,25 @@ def parse_js_obj(text: str, init: str) -> Dict[Any, Any]:
         data = undefined_to_none(data)
     return data
 
-def parse_js_redux(text: str):
-    return parse_js_obj(text, JS_STR_REDUX)
+def parse_sk(html: str):
+    text = html.decode('utf-8')
+    obj = parse_js_obj(text, JS_STR_REDUX)
+    if obj is None:
+        return []
+    else:
+        return [obj['jobdetails']['result']]
 
-def parse_js_app(text: str):
-    return parse_js_obj(text, JS_STR_APP)
+def parse_gt(html: str):
+    text = html.decode('utf-8')
+    obj = parse_js_obj(text, JS_STR_APP)
+    if obj is None:
+        return []
+    else:
+        data = obj['vip']['item']
+        if data['isJobsCategory']:
+            return [data]
+        else:
+            return []
 
 def undefined_to_none(dj):
     if isinstance(dj, dict):
