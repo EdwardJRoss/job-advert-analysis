@@ -75,6 +75,7 @@ salary_tests = [
     #salarytest("Level 6 - $94,409 to $103,497 / Level 7- $107,134 to $118,283", 94_409, 118_283),
     salarytest("$100,000 +", 100_000),
     salarytest("80-90k pro rata", 80_000, 90_000),
+    salarytest('$96 475 - $103 931 p.a.', 96_475, 103_931, unit=YEAR),
 ]
 
 
@@ -93,7 +94,7 @@ HYPHEN = "[-~\u00ad\u2010\u2011\u2012\u2013\u2014\u2015\u2053\u207b\u208b\u2212\
 
 def parse_number(number):
     number = number.strip(',.$£€').strip()
-    number = number.replace(',', '')
+    number = re.sub(r'[\s,]', '', number)
     number = number.lower().replace('k', '000')
     return float(number)
 
