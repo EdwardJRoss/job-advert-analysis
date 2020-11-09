@@ -1,4 +1,5 @@
 pandas
+pyarrow
 networkx
 datasketch
 xxhash

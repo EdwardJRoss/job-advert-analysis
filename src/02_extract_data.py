@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from warcio.archiveiterator import ArchiveIterator
 from lib.io import AtomicFileWriter
-from lib.extract import parse_warc
+from lib.extract import extract_warc
 from tqdm import tqdm
 
 INPUT = Path('../data/01_raw')
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         logging.info('Processing %s from %s with %s', path, source_key, source_row['parser'])
         source_data = read_input(path)
 
-        data = (job_post for datum in source_data for job_post in parse_warc(datum, source_row['parser']))
+        data = (job_post for datum in source_data for job_post in extract_warc(datum, source_row['parser']))
 
         with AtomicFileWriter(dest_file) as f:
             for datum in data:
