@@ -1,9 +1,15 @@
 import re
+from datetime import datetime, timezone
 import functools
 import requests
 from html2text import HTML2Text
 from bs4 import BeautifulSoup
 import mistletoe
+
+def datetime_from_iso_utc(t):
+    d = datetime.strptime(t, '%Y-%m-%dT%H:%M:%SZ')
+    d = d.astimezone(timezone.utc)
+    return d
 
 def html2md(html):
     parser = HTML2Text()

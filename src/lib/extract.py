@@ -5,7 +5,7 @@ import demjson
 from warcio.recordloader import ArcWarcRecord
 import extruct
 import bs4
-from lib.normalise import html2plain
+from lib.normalise import html2plain, datetime_from_iso_utc
 
 HANDLERS = {}
 
@@ -13,11 +13,11 @@ HANDLERS = {}
 def extract_warc(warc: ArcWarcRecord, parser: str) -> Generator[Dict[str, Any], None, None]:
     html = warc.content_stream().read()
     uri = warc.rec_headers['WARC-Target-URI']
-    date = warc.rec_headers['WARC-Date']
+    view_date = warc.rec_headers['WARC-Date']
     assert uri is not None
-    assert date is not None
+    assert view_date is not None
 
-    data = HANDLERS[parser]['extract'](html, uri, date)
+    data = HANDLERS[parser]['extract'](html, uri, view_date)
 
     for datum in data:
         yield datum
@@ -31,7 +31,7 @@ def normalise_warc(data: Dict[str, Any], parser: str):
 ## Careers Vic
 ################################################################################
 
-def extract_careers_vic(html: Union[bytes, str], uri, date):
+def extract_careers_vic(html: Union[bytes, str], uri, view_date):
     soup = bs4.BeautifulSoup(html, 'html5lib')
     data = {}
     for info in soup.select('.txt-info'):
@@ -42,7 +42,7 @@ def extract_careers_vic(html: Union[bytes, str], uri, date):
     
     title = str(soup.select_one('.txt-title').get_text())
     description = str(soup.select_one('.txt-pre-line'))
-    return [{'title': title, 'description': description, 'metadata': data, 'uri': uri, 'date': date}]
+    return [{'title': title, 'description': description, 'metadata': data, 'uri': uri, 'view_date': view_date}]
 
 
 CAREERS_VIC_MAPPINGS = {
@@ -63,10 +63,13 @@ CAREERS_VIC_IGNORE = [
     'Work location: ', # Same as Location?
     'Job duration: ', # End date of job. Part of employmenType???
 ]
-def normalise_careers_vic(title, description, metadata, uri, date):
+def normalise_careers_vic(title, description, metadata, uri, view_date):
     return {
         'title': title,
         'description': html2plain(description),
+        'uri': uri,
+        'view_date': datetime_from_iso_utc(view_date),
+        'org': metadata['Organisation:'],
     }
 
 HANDLERS['careers_vic'] = {
@@ -79,14 +82,14 @@ HANDLERS['careers_vic'] = {
 ## I Work for NSW
 ################################################################################
 
-def extract_iworkfornsw(html: Union[bytes, str], uri, date):
+def extract_iworkfornsw(html: Union[bytes, str], uri, view_date):
     soup = bs4.BeautifulSoup(html, 'html5lib')
     body = soup.find('tbody')
     infos = body.find_all('tr')
     data = {info.th.get_text().strip(): info.td.get_text().strip() for info in infos}
     title = soup.select_one('.job-detail-title').get_text().strip()
     description = str(soup.select_one('.job-detail-des'))
-    return [{'title': title, 'description': description, 'metadata': data, 'uri': uri, 'date': date}]
+    return [{'title': title, 'description': description, 'metadata': data, 'uri': uri, 'view_date': view_date}]
 
 IWORKFORNSW_MAPPINGS = {
     'Organisation/Entity:': 'hiringOrganization',
@@ -99,10 +102,13 @@ IWORKFORNSW_MAPPINGS = {
     'Contact:': 'applicationContact',
     'Closing Date:': 'validThrough',
 }
-def normalise_iworkfornsw(title, description, metadata, uri, date):
+def normalise_iworkfornsw(title, description, metadata, uri, view_date):
     return {
         'title': title,
         'description': html2plain(description),
+        'uri': uri,
+        'view_date': datetime_from_iso_utc(view_date),
+        'org': metadata['Organisation/Entity:'],
     }
 
 HANDLERS['iworkfornsw'] = {
@@ -114,7 +120,7 @@ HANDLERS['iworkfornsw'] = {
 ## Probono
 ################################################################################
 
-def extract_probono(html: Union[bytes, str], uri, date):
+def extract_probono(html: Union[bytes, str], uri, view_date):
     soup = bs4.BeautifulSoup(html, 'html5lib')
     infos = soup.select_one('.org-basic-info').div.select('p.org-add')
     data = {}
@@ -126,7 +132,7 @@ def extract_probono(html: Union[bytes, str], uri, date):
     description = str(soup.select_one('#about-role'))
     hiringOrganization_description = str(soup.select_one('#about-organisation'))
     title = soup.h1.get_text().strip()
-    return [{'title': title, 'description': description, 'organisation_description': hiringOrganization_description, 'metadata': data, 'uri': uri, 'date': date}]
+    return [{'title': title, 'description': description, 'organisation_description': hiringOrganization_description, 'metadata': data, 'uri': uri, 'view_date': view_date}]
 
 
 PROBONO_MAPPINGS = {
@@ -139,10 +145,13 @@ PROBONO_MAPPINGS = {
     'Salary :': 'baseSalary',
     'Application closing date :': 'validThrough',
 }
-def normalise_probono(title, description, organisation_description, metadata, uri, date):
+def normalise_probono(title, description, organisation_description, metadata, uri, view_date):
     return {
         'title': title,
         'description': html2plain(description),
+        'uri': uri,
+        'view_date': datetime_from_iso_utc(view_date),
+        'org': metadata['Organisation :'],
     }
 
 HANDLERS['probono'] = {
@@ -155,19 +164,22 @@ HANDLERS['probono'] = {
 ################################################################################
 
 JS_STR_REDUX = 'REDUX_DATA ='
-def extract_sk(html: str, uri, date):
+def extract_sk(html: str, uri, view_date):
     text = html.decode('utf-8')
     obj = parse_js_obj(text, JS_STR_REDUX)
     if obj is None:
         return []
     else:
-        return [{'data': obj['jobdetails']['result'], 'uri': uri, 'date': date}]
+        return [{'data': obj['jobdetails']['result'], 'uri': uri, 'view_date': view_date}]
 
 
-def normalise_sk(data, uri, date):
+def normalise_sk(data, uri, view_date):
     return {
         'title': data['title'],
         'description': html2plain(data['mobileAdTemplate']),
+        'uri': uri,
+        'view_date': datetime_from_iso_utc(view_date),
+        'org': data['advertiser']['description'],
         }
 
 
@@ -181,22 +193,26 @@ HANDLERS['sk'] = {
 ################################################################################
 
 JS_STR_APP = 'window.APP_DATA ='
-def extract_gt(html: str, uri, date):
+def extract_gt(html: str, uri, view_date):
     text = html.decode('utf-8')
     obj = parse_js_obj(text, JS_STR_APP)
     if obj is None:
         return []
     else:
         data = obj['vip']['item']
-        if data['isJobsCategory']:
-            return [{'data': data, 'uri': uri, 'date': date}]
+        # adType: OFFER is job ad, WANTED is ask for work
+        if data['isJobsCategory'] and data['adType'] == 'OFFER':
+            return [{'data': data, 'uri': uri, 'view_date': view_date}]
         else:
             return []
 
-def normalise_gt(data, uri, date):
+def normalise_gt(data, uri, view_date):
     return {
         'title': data['title'],
         'description': html2plain(data['description']),
+        'uri': uri,
+        'view_date': datetime_from_iso_utc(view_date),
+        'org': None,
         }
 
 
@@ -211,17 +227,20 @@ HANDLERS['gt'] = {
 ################################################################################
 
 
-def extract_jsonld(html: Union[bytes,str], base_url: str, date) -> Generator[Dict[Any, Any], None, None]:
+def extract_jsonld(html: Union[bytes,str], base_url: str, view_date) -> Generator[Dict[Any, Any], None, None]:
     data = extruct.extract(html, base_url, syntaxes=['json-ld'])['json-ld']
     job_posts = [datum for datum in data if datum['@type'] == 'JobPosting']
     for post in job_posts:
-        yield {'data': post, 'uri': base_url, 'date': date}
+        yield {'data': post, 'uri': base_url, 'view_date': view_date}
 
 
-def normalise_jsonld(data, uri, date):
+def normalise_jsonld(data, uri, view_date):
     return {
         'title': data['title'],
         'description': html2plain(data['description']),
+        'uri': uri,
+        'view_date': datetime_from_iso_utc(view_date),
+        'org': data['hiringOrganization']['name'],
         }
 
 HANDLERS['jsonld'] = {
@@ -229,13 +248,13 @@ HANDLERS['jsonld'] = {
     'normalise': normalise_jsonld,
 }
 
-def extract_microdata(html: Union[bytes,str], base_url: str, date) -> Generator[Dict[Any, Any], None, None]:
+def extract_microdata(html: Union[bytes,str], base_url: str, view_date) -> Generator[Dict[Any, Any], None, None]:
     data = extruct.extract(html, base_url, syntaxes=['microdata'])['microdata']
     job_posts = [datum['properties'] for datum in data if datum['type'] == 'http://schema.org/JobPosting']
     for post in job_posts:
-        yield {'data': post, 'uri': base_url, 'date': date}
+        yield {'data': post, 'uri': base_url, 'view_date': view_date}
 
-def normalise_microdata(data, uri, date):
+def normalise_microdata(data, uri, view_date):
     if 'description' in data:
         description = html2plain(data['description'])
     else:
@@ -243,6 +262,9 @@ def normalise_microdata(data, uri, date):
     return {
         'title': data['title'],
         'description': description,
+        'uri': uri,
+        'view_date': datetime_from_iso_utc(view_date),
+        'org': data.get('hiringOrganization'),
         }
 
 HANDLERS['microdata'] = {
