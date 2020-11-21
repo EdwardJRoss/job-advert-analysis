@@ -171,7 +171,7 @@ def normalise_probono(title, description, organisation_description, metadata, ur
         'description': html2plain(description),
         'uri': uri,
         'view_date': datetime_from_iso_utc(view_date),
-        'org': metadata['Organisation :'],
+        'org': metadata.get('Organisation :'),
         **salary_data,
         'location_raw': location_raw,
         **AU_GEOCODER.geocode(fix_probono_location(location_raw)),
