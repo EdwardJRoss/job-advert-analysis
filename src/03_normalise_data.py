@@ -40,5 +40,9 @@ if __name__ == '__main__':
         logging.info('Processing %s from %s with %s', path, source_key, source_row['parser'])
         source_data = read_input(path)
 
-        df = pd.DataFrame([normalise_warc(datum, source_row['parser']) for datum in source_data])
-        df.to_feather(dest_file)
+        normalised_data = [normalise_warc(datum, source_row['parser']) for datum in source_data]
+        if normalised_data:
+            df = pd.DataFrame(normalised_data)
+            df.to_feather(dest_file)
+        else:
+            logging.warning('No data output for %s', path)
