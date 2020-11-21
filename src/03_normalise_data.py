@@ -11,7 +11,7 @@ OUTPUT = Path('../data/03_secondary')
 
 def read_input(filename):
     with open(filename, 'r') as f:
-        for line in f:
+        for line in tqdm(f):
             yield json.loads(line)
 
 SOURCES = Path('./sources.csv')
