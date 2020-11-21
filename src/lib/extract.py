@@ -5,8 +5,12 @@ import demjson
 from warcio.recordloader import ArcWarcRecord
 import extruct
 import bs4
-from lib.normalise import html2plain, datetime_from_iso_utc
+import re
+from lib.normalise import html2plain, datetime_from_iso_utc, Geocoder, WOF_AUS, WOF_NZ, location_jsonld
 from lib.salary import get_salary_data
+
+# TODO: Check geocoder is accessible
+AU_GEOCODER = Geocoder(lang='en', filter_country_ids=(WOF_AUS, WOF_NZ))
 
 HANDLERS = {}
 
@@ -66,6 +70,7 @@ CAREERS_VIC_IGNORE = [
 ]
 def normalise_careers_vic(title, description, metadata, uri, view_date):
     salary_data = get_salary_data(metadata['Salary:'])
+    location_raw = metadata['Location:']
     return {
         'title': title,
         'description': html2plain(description),
@@ -73,6 +78,8 @@ def normalise_careers_vic(title, description, metadata, uri, view_date):
         'view_date': datetime_from_iso_utc(view_date),
         'org': metadata['Organisation:'],
         **salary_data,
+        'location_raw': location_raw,
+        **AU_GEOCODER.geocode(location_raw),
     }
 
 HANDLERS['careers_vic'] = {
@@ -107,6 +114,7 @@ IWORKFORNSW_MAPPINGS = {
 }
 def normalise_iworkfornsw(title, description, metadata, uri, view_date):
     salary = get_salary_data(metadata['Total Remuneration Package:'])
+    location_raw = metadata['Job Location:']
     return {
         'title': title,
         'description': html2plain(description),
@@ -114,6 +122,8 @@ def normalise_iworkfornsw(title, description, metadata, uri, view_date):
         'view_date': datetime_from_iso_utc(view_date),
         'org': metadata['Organisation/Entity:'],
         **salary,
+        'location_raw': location_raw,
+        **AU_GEOCODER.geocode(location_raw.replace('\n', ' ')),
     }
 
 HANDLERS['iworkfornsw'] = {
@@ -139,6 +149,8 @@ def extract_probono(html: Union[bytes, str], uri, view_date):
     title = soup.h1.get_text().strip()
     return [{'title': title, 'description': description, 'organisation_description': hiringOrganization_description, 'metadata': data, 'uri': uri, 'view_date': view_date}]
 
+def fix_probono_location(loc):
+    return re.sub(r'(.*)\((.*)\)', '\\2, \\1', loc)
 
 PROBONO_MAPPINGS = {
     'Organisation :': 'hiringOrganization',
@@ -153,6 +165,7 @@ PROBONO_MAPPINGS = {
 def normalise_probono(title, description, organisation_description, metadata, uri, view_date):
     salary_text = metadata.get('Salary :')
     salary_data = get_salary_data(salary_text)
+    location_raw = metadata['Location :']
     return {
         'title': title,
         'description': html2plain(description),
@@ -160,6 +173,8 @@ def normalise_probono(title, description, organisation_description, metadata, ur
         'view_date': datetime_from_iso_utc(view_date),
         'org': metadata['Organisation :'],
         **salary_data,
+        'location_raw': location_raw,
+        **AU_GEOCODER.geocode(fix_probono_location(location_raw)),
     }
 
 HANDLERS['probono'] = {
@@ -183,6 +198,8 @@ def extract_sk(html: str, uri, view_date):
 
 def normalise_sk(data, uri, view_date):
     salary_text = data['salary']
+    location = data['locationHierarchy']
+    location_text = ', '.join([location['suburb'], location['city'], location['state'], location['nation']])
     return {
         'title': data['title'],
         'description': html2plain(data['mobileAdTemplate']),
@@ -190,6 +207,8 @@ def normalise_sk(data, uri, view_date):
         'view_date': datetime_from_iso_utc(view_date),
         'org': data['advertiser']['description'],
         **get_salary_data(salary_text),
+        'location_raw': location_text,
+        **AU_GEOCODER.geocode(location_text),
         }
 
 
@@ -227,6 +246,8 @@ def normalise_gt(data, uri, view_date):
         'view_date': datetime_from_iso_utc(view_date),
         'org': None,
         **salary_data,
+        'location_raw': data['mapAddress'],
+        **AU_GEOCODER.geocode(data['mapAddress']),
         }
 
 
@@ -261,25 +282,60 @@ def normalise_cgcrecruitment(data, uri, view_date):
     ans = normalise_jsonld(data, uri, view_date)
     salary_raw = data['baseSalary']['value'].get('value')
     salary = get_salary_data(salary_raw)
-    return {**ans, **salary}
+    location_raw = location_jsonld(data)
+    return {
+        **ans,
+        **salary,
+        'location_raw': location_raw,
+        **AU_GEOCODER.geocode(location_raw),
+    }
 
 def normalise_davidsonwp(data, uri, view_date):
     ans = normalise_jsonld(data, uri, view_date)
     salary_raw = data['baseSalary']['value'].get('value')
     salary = get_salary_data(salary_raw)
-    return {**ans, **salary}
+    location_raw = location_jsonld(data)
+    return {
+        **ans,
+        **salary,
+        'location_raw': location_raw,
+        **AU_GEOCODER.geocode(location_raw),
+    }
 
 def normalise_engineeringjobs(data, uri, view_date):
     ans = normalise_jsonld(data, uri, view_date)
     salary_raw = data['baseSalary']['value'].get('value')
     salary = get_salary_data(salary_raw)
-    return {**ans, **salary}
+    location_raw = location_jsonld(data)
+    return {
+        **ans,
+        **salary,
+        'location_raw': location_raw,
+        **AU_GEOCODER.geocode(location_raw),
+    }
 
 def normalise_launchrecruitment(data, uri, view_date):
     ans = normalise_jsonld(data, uri, view_date)
     salary_raw = data['baseSalary']['value'].get('value')
     salary = get_salary_data(salary_raw)
-    return {**ans, **salary}
+    location_raw = location_jsonld(data)
+    return {
+        **ans,
+        **salary,
+        'location_raw': location_raw,
+        **AU_GEOCODER.geocode(location_raw),
+    }
+
+
+def normalise_ethicaljobs(data, uri, view_date):
+    ans = normalise_jsonld(data, uri, view_date)
+    # Salary not in metadata
+    location_raw = data['jobLocation']['address']
+    return {
+        **ans,
+        'location_raw': location_raw,
+        **AU_GEOCODER.geocode(location_raw),
+    }
 
 HANDLERS['jsonld'] = {
     'extract': extract_jsonld,
@@ -303,8 +359,7 @@ HANDLERS['launchrecruitment'] = {
 
 HANDLERS['ethicaljobs'] = {
     'extract': extract_jsonld,
-    # Salary is in description where available
-    'normalise': normalise_jsonld,
+    'normalise': normalise_ethicaljobs,
 }
 
 HANDLERS['engineeringjobs'] = {
@@ -331,6 +386,16 @@ def normalise_microdata(data, uri, view_date):
         'org': data.get('hiringOrganization'),
         }
 
+def normalise_csiro(data, uri, view_date):
+    ans = normalise_microdata(data, uri, view_date)
+    # jobLocation *can* be an array
+    location_raw = str(data.get('jobLocation') or '')
+    return {
+        **ans,
+        'location_raw': location_raw,
+        **AU_GEOCODER.geocode(location_raw),
+        }
+
 HANDLERS['microdata'] = {
     'extract': extract_microdata,
     'normalise': normalise_microdata,
@@ -338,7 +403,7 @@ HANDLERS['microdata'] = {
 
 HANDLERS['jobs.csiro.au'] = {
     'extract': extract_microdata,
-    'normalise': normalise_microdata,
+    'normalise': normalise_csiro,
 }
 
 ################################################################################
