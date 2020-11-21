@@ -128,6 +128,18 @@ def extract_salary(text):
         return parse_number(match), None
     return (None, None)
 
+def get_salary_data(salary_raw):
+    """Return dictionary of extracted salary data"""
+    salary_min, salary_max = extract_salary(salary_raw or '')
+    salary_hours = salary_unit(salary_raw or '')
+    return {
+        'salary_raw': salary_raw,
+        'salary_min': salary_min,
+        'salary_max': salary_max,
+        'salary_hours': salary_hours,
+    }
+
+
 def test_unit():
     for test in salary_tests:
         unit = salary_unit(test.text)

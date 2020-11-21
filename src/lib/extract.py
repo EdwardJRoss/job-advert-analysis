@@ -6,6 +6,7 @@ from warcio.recordloader import ArcWarcRecord
 import extruct
 import bs4
 from lib.normalise import html2plain, datetime_from_iso_utc
+from lib.salary import get_salary_data
 
 HANDLERS = {}
 
@@ -64,12 +65,14 @@ CAREERS_VIC_IGNORE = [
     'Job duration: ', # End date of job. Part of employmenType???
 ]
 def normalise_careers_vic(title, description, metadata, uri, view_date):
+    salary_data = get_salary_data(metadata['Salary:'])
     return {
         'title': title,
         'description': html2plain(description),
         'uri': uri,
         'view_date': datetime_from_iso_utc(view_date),
         'org': metadata['Organisation:'],
+        **salary_data,
     }
 
 HANDLERS['careers_vic'] = {
@@ -103,12 +106,14 @@ IWORKFORNSW_MAPPINGS = {
     'Closing Date:': 'validThrough',
 }
 def normalise_iworkfornsw(title, description, metadata, uri, view_date):
+    salary = get_salary_data(metadata['Total Remuneration Package:'])
     return {
         'title': title,
         'description': html2plain(description),
         'uri': uri,
         'view_date': datetime_from_iso_utc(view_date),
         'org': metadata['Organisation/Entity:'],
+        **salary,
     }
 
 HANDLERS['iworkfornsw'] = {
@@ -146,12 +151,15 @@ PROBONO_MAPPINGS = {
     'Application closing date :': 'validThrough',
 }
 def normalise_probono(title, description, organisation_description, metadata, uri, view_date):
+    salary_text = metadata.get('Salary :')
+    salary_data = get_salary_data(salary_text)
     return {
         'title': title,
         'description': html2plain(description),
         'uri': uri,
         'view_date': datetime_from_iso_utc(view_date),
         'org': metadata['Organisation :'],
+        **salary_data,
     }
 
 HANDLERS['probono'] = {
@@ -174,12 +182,14 @@ def extract_sk(html: str, uri, view_date):
 
 
 def normalise_sk(data, uri, view_date):
+    salary_text = data['salary']
     return {
         'title': data['title'],
         'description': html2plain(data['mobileAdTemplate']),
         'uri': uri,
         'view_date': datetime_from_iso_utc(view_date),
         'org': data['advertiser']['description'],
+        **get_salary_data(salary_text),
         }
 
 
@@ -207,12 +217,16 @@ def extract_gt(html: str, uri, view_date):
             return []
 
 def normalise_gt(data, uri, view_date):
+    metadata = {row['value']: row['name'] for row in data['mainAttributes']}
+    salary_raw = metadata.get('Salary Detail')
+    salary_data = get_salary_data(salary_raw)
     return {
         'title': data['title'],
         'description': html2plain(data['description']),
         'uri': uri,
         'view_date': datetime_from_iso_utc(view_date),
         'org': None,
+        **salary_data,
         }
 
 
@@ -243,6 +257,30 @@ def normalise_jsonld(data, uri, view_date):
         'org': data['hiringOrganization']['name'],
         }
 
+def normalise_cgcrecruitment(data, uri, view_date):
+    ans = normalise_jsonld(data, uri, view_date)
+    salary_raw = data['baseSalary']['value'].get('value')
+    salary = get_salary_data(salary_raw)
+    return {**ans, **salary}
+
+def normalise_davidsonwp(data, uri, view_date):
+    ans = normalise_jsonld(data, uri, view_date)
+    salary_raw = data['baseSalary']['value'].get('value')
+    salary = get_salary_data(salary_raw)
+    return {**ans, **salary}
+
+def normalise_engineeringjobs(data, uri, view_date):
+    ans = normalise_jsonld(data, uri, view_date)
+    salary_raw = data['baseSalary']['value'].get('value')
+    salary = get_salary_data(salary_raw)
+    return {**ans, **salary}
+
+def normalise_launchrecruitment(data, uri, view_date):
+    ans = normalise_jsonld(data, uri, view_date)
+    salary_raw = data['baseSalary']['value'].get('value')
+    salary = get_salary_data(salary_raw)
+    return {**ans, **salary}
+
 HANDLERS['jsonld'] = {
     'extract': extract_jsonld,
     'normalise': normalise_jsonld,
@@ -250,27 +288,28 @@ HANDLERS['jsonld'] = {
 
 HANDLERS['davidsonwp'] = {
     'extract': extract_jsonld,
-    'normalise': normalise_jsonld,
+    'normalise': normalise_davidsonwp,
 }
 
 HANDLERS['cgcrecruitment'] = {
     'extract': extract_jsonld,
-    'normalise': normalise_jsonld,
+    'normalise': normalise_cgcrecruitment,
 }
 
 HANDLERS['launchrecruitment'] = {
     'extract': extract_jsonld,
-    'normalise': normalise_jsonld,
+    'normalise': normalise_launchrecruitment,
 }
 
 HANDLERS['ethicaljobs'] = {
     'extract': extract_jsonld,
+    # Salary is in description where available
     'normalise': normalise_jsonld,
 }
 
 HANDLERS['engineeringjobs'] = {
     'extract': extract_jsonld,
-    'normalise': normalise_jsonld,
+    'normalise': normalise_engineeringjobs,
 }
 
 def extract_microdata(html: Union[bytes,str], base_url: str, view_date) -> Generator[Dict[Any, Any], None, None]:
