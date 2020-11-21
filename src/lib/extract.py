@@ -248,6 +248,31 @@ HANDLERS['jsonld'] = {
     'normalise': normalise_jsonld,
 }
 
+HANDLERS['davidsonwp'] = {
+    'extract': extract_jsonld,
+    'normalise': normalise_jsonld,
+}
+
+HANDLERS['cgcrecruitment'] = {
+    'extract': extract_jsonld,
+    'normalise': normalise_jsonld,
+}
+
+HANDLERS['launchrecruitment'] = {
+    'extract': extract_jsonld,
+    'normalise': normalise_jsonld,
+}
+
+HANDLERS['ethicaljobs'] = {
+    'extract': extract_jsonld,
+    'normalise': normalise_jsonld,
+}
+
+HANDLERS['engineeringjobs'] = {
+    'extract': extract_jsonld,
+    'normalise': normalise_jsonld,
+}
+
 def extract_microdata(html: Union[bytes,str], base_url: str, view_date) -> Generator[Dict[Any, Any], None, None]:
     data = extruct.extract(html, base_url, syntaxes=['microdata'])['microdata']
     job_posts = [datum['properties'] for datum in data if datum['type'] == 'http://schema.org/JobPosting']
@@ -268,6 +293,11 @@ def normalise_microdata(data, uri, view_date):
         }
 
 HANDLERS['microdata'] = {
+    'extract': extract_microdata,
+    'normalise': normalise_microdata,
+}
+
+HANDLERS['jobs.csiro.au'] = {
     'extract': extract_microdata,
     'normalise': normalise_microdata,
 }
