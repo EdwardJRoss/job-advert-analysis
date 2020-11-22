@@ -49,6 +49,9 @@ def extract_careers_vic(html: Union[bytes, str], uri, view_date):
     description = str(soup.select_one('.txt-pre-line'))
     return [{'title': title, 'description': description, 'metadata': data, 'uri': uri, 'view_date': view_date}]
 
+def fixup_careers_vic_location(loc):
+    loc = re.sub('(.*)/(.*)', r'\1 \2', loc)
+    return re.sub(r'(.*)\|(.*)', r'\2, \1, Victoria, Australia', loc)
 
 CAREERS_VIC_MAPPINGS = {
     'Location: ': 'jobLocation', # name?
@@ -79,7 +82,7 @@ def normalise_careers_vic(title, description, metadata, uri, view_date):
         'org': metadata['Organisation:'],
         **salary_data,
         'location_raw': location_raw,
-        **AU_GEOCODER.geocode(location_raw),
+        **AU_GEOCODER.geocode(fixup_careers_vic_location(location_raw)),
     }
 
 HANDLERS['careers_vic'] = {
@@ -100,6 +103,12 @@ def extract_iworkfornsw(html: Union[bytes, str], uri, view_date):
     title = soup.select_one('.job-detail-title').get_text().strip()
     description = str(soup.select_one('.job-detail-des'))
     return [{'title': title, 'description': description, 'metadata': data, 'uri': uri, 'view_date': view_date}]
+
+def fixup_iworkfornsw_loc(loc):
+    # Normally multiple lines is statewide; take the broad location
+    loc = loc.split('\n')[0]
+    # Reverse the location; heuristic but generally gets something close to right (the locations are often ambiguous)
+    return ', '.join(reversed(loc.replace('-', '/').replace('&', '/').split('/'))) + ', NSW, AU'
 
 IWORKFORNSW_MAPPINGS = {
     'Organisation/Entity:': 'hiringOrganization',
@@ -123,7 +132,7 @@ def normalise_iworkfornsw(title, description, metadata, uri, view_date):
         'org': metadata['Organisation/Entity:'],
         **salary,
         'location_raw': location_raw,
-        **AU_GEOCODER.geocode(location_raw.replace('\n', ' ')),
+        **AU_GEOCODER.geocode(fixup_iworkfornsw_loc(location_raw)),
     }
 
 HANDLERS['iworkfornsw'] = {
