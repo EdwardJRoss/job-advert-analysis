@@ -1,6 +1,7 @@
 import json
 from functools import lru_cache
 import requests
+import logging
 
 def jsonl_loads(jsonl):
     return [json.loads(line) for line in jsonl.splitlines()]
@@ -32,6 +33,9 @@ def cdx_query_page(api, query, page=0, filters=None):
                      'filter': filters or [],
                      'page': page
                      })
+    if r.status_code == 404:
+        logging.warning('No results found for %s in %s', query, api)
+        return []
     r.raise_for_status()
     results = jsonl_loads(r.text)
     return results
