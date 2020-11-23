@@ -72,14 +72,14 @@ CAREERS_VIC_IGNORE = [
     'Job duration: ', # End date of job. Part of employmenType???
 ]
 def normalise_careers_vic(title, description, metadata, uri, view_date):
-    salary_data = get_salary_data(metadata['Salary:'])
-    location_raw = metadata['Location:']
+    salary_data = get_salary_data(metadata.get('Salary:') or metadata['Salary Range:'])
+    location_raw = metadata.get('Location:') or metadata['Work location:']
     return {
         'title': title,
         'description': html2plain(description),
         'uri': uri,
         'view_date': datetime_from_iso_utc(view_date),
-        'org': metadata['Organisation:'],
+        'org': metadata.get('Organisation:'),
         **salary_data,
         'location_raw': location_raw,
         **AU_GEOCODER.geocode(fixup_careers_vic_location(location_raw)),
@@ -98,6 +98,9 @@ HANDLERS['careers_vic'] = {
 def extract_iworkfornsw(html: Union[bytes, str], uri, view_date):
     soup = bs4.BeautifulSoup(html, 'html5lib')
     body = soup.find('tbody')
+    # Some pages are missing a body; e.g. CC-MAIN-2018-17
+    if not body:
+        return []
     infos = body.find_all('tr')
     data = {info.th.get_text().strip(): info.td.get_text().strip() for info in infos}
     title = soup.select_one('.job-detail-title').get_text().strip()
@@ -122,7 +125,7 @@ IWORKFORNSW_MAPPINGS = {
     'Closing Date:': 'validThrough',
 }
 def normalise_iworkfornsw(title, description, metadata, uri, view_date):
-    salary = get_salary_data(metadata['Total Remuneration Package:'])
+    salary = get_salary_data(metadata.get('Total Remuneration Package:') or '')
     location_raw = metadata['Job Location:']
     return {
         'title': title,
@@ -279,12 +282,17 @@ def extract_jsonld(html: Union[bytes,str], base_url: str, view_date) -> Generato
 
 
 def normalise_jsonld(data, uri, view_date):
+    org = data['hiringOrganization']
+    if isinstance(org, dict):
+        org = org.get('name')
+    if not isinstance(org, str):
+        org = None
     return {
         'title': data['title'],
         'description': html2plain(data['description']),
         'uri': uri,
         'view_date': datetime_from_iso_utc(view_date),
-        'org': data['hiringOrganization']['name'],
+        'org': org,
         }
 
 def normalise_cgcrecruitment(data, uri, view_date):
@@ -396,6 +404,9 @@ def normalise_microdata(data, uri, view_date):
         }
 
 def normalise_csiro(data, uri, view_date):
+    # Description is dometimes a list, e.g. CC-MAIN-2019-18
+    if isinstance(data.get('description'), list):
+        data['description'] = '\n'.join(data['description'])
     ans = normalise_microdata(data, uri, view_date)
     # jobLocation *can* be an array
     location_raw = str(data.get('jobLocation') or '')
