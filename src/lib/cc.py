@@ -1,6 +1,8 @@
 import json
 from functools import lru_cache
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import logging
 
 def jsonl_loads(jsonl):
@@ -47,12 +49,22 @@ def cdx_query(api, query, filters=None):
             yield result
 
 
+# TODO: This should all be wrapped in an object rather than a global
 CC_DATA_URL = 'https://commoncrawl.s3.amazonaws.com/'
+RETRY_STRATEGY = Retry(
+    total=5,
+    backoff_factor=1
+)
+ADAPTER = HTTPAdapter(max_retries=RETRY_STRATEGY)
+CC_HTTP = requests.Session()
+CC_HTTP.mount(CC_DATA_URL, ADAPTER)
+
+
 def fetch_cc(filename: str, offset: int, length: int) -> bytes:
     data_url = CC_DATA_URL + filename
     start_byte = int(offset)
     end_byte = start_byte + int(length)
     headers = {'Range': f'bytes={start_byte}-{end_byte}'}
-    r = requests.get(data_url, headers=headers)
+    r = CC_HTTP.get(data_url, headers=headers)
     r.raise_for_status()
     return r.content
