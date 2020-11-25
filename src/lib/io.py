@@ -19,7 +19,7 @@ class AtomicFileWriter:
         if temp_filename is None:
             self.temp_filename = str(filename) + ".tmp"
         else:
-            self.temp_filename = temp_filename
+            self.temp_filename = str(temp_filename)
 
     def __enter__(self):
         self.filehandle = open(self.temp_filename, self.mode)
