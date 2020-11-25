@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import demjson
 
@@ -9,7 +9,7 @@ class ParseError(Exception):
     pass
 
 
-def extract_braces(text):
+def extract_braces(text: str) -> str:
     depth = 0
     inquote = False
     escape = False
@@ -39,7 +39,7 @@ def extract_braces(text):
     return text[start : idx + 1]
 
 
-def parse_js_obj(text: str, init: str) -> Dict[Any, Any]:
+def parse_js_obj(text: str, init: str) -> Optional[Dict[Any, Any]]:
     idx = text.find(init)
     if idx < 0:
         return None
