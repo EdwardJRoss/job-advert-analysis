@@ -7,3 +7,4 @@ python -m pyflakes src/
 # Style
 python -m isort -m 3 -tc -c
 black --check -t py36 src/
+mypy src/lib/cc.py

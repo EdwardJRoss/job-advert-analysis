@@ -1,8 +1,10 @@
 import json
 import logging
 from functools import lru_cache
+from typing import Dict, Generator, List, Optional, Union
 
 import requests
+from mypy_extensions import TypedDict
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -13,33 +15,62 @@ def jsonl_loads(jsonl):
 
 INDEXES_URL = "https://index.commoncrawl.org/collinfo.json"
 
+CrawlIndexDict = TypedDict(
+    "CrawlIndexDict", {"id": str, "name": str, "timegate": str, "cdx-api": str}
+)
+CrawlResultDict = TypedDict(
+    "CrawlResultDict",
+    {
+        "urlkey": str,
+        "timestamp": str,
+        "mime": str,
+        "status": str,
+        "offset": str,
+        "filename": str,
+        "mime-detected": str,
+        "digest": str,
+        "redirect": str,
+        "url": str,
+        "length": str,
+    },
+)
+
 
 @lru_cache(maxsize=1)
-def get_indexes():
+def get_indexes() -> List[CrawlIndexDict]:
     r = requests.get(INDEXES_URL)
     r.raise_for_status()
     return r.json()
 
 
-def cdx_num_pages(api, query, filters=None):
+def cdx_num_pages(api: str, query: str, filters: Optional[List[str]] = None) -> int:
+    params: Dict[str, Union[str, bool, List[str]]] = {
+        "url": query,
+        "output": "json",
+        "showNumPages": True,
+        "filter": filters or [],
+    }
     r = requests.get(
         api,
-        params={
-            "url": query,
-            "output": "json",
-            "showNumPages": True,
-            "filter": filters or [],
-        },
+        params=params,
     )
     r.raise_for_status()
     data = r.json()
     return data["pages"]
 
 
-def cdx_query_page(api, query, page=0, filters=None):
+def cdx_query_page(
+    api: str, query: str, page: int = 0, filters: Optional[List[str]] = None
+) -> List[CrawlResultDict]:
+    params: Dict[str, Union[str, int, List[str]]] = {
+        "url": query,
+        "output": "json",
+        "filter": filters or [],
+        "page": page,
+    }
     r = requests.get(
         api,
-        params={"url": query, "output": "json", "filter": filters or [], "page": page},
+        params=params,
     )
     if r.status_code == 404:
         logging.warning("No results found for %s in %s", query, api)
@@ -49,7 +80,9 @@ def cdx_query_page(api, query, page=0, filters=None):
     return results
 
 
-def cdx_query(api, query, filters=None):
+def cdx_query(
+    api: str, query: str, filters: Optional[List[str]] = None
+) -> Generator[CrawlResultDict, None, None]:
     filters = ["=status:200"] + (filters or [])
     for page in range(cdx_num_pages(api, query, filters)):
         for result in cdx_query_page(api, query, page, filters):

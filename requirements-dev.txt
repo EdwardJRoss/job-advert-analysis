@@ -1,3 +1,6 @@
 pyflakes
 isort
 black
+
+mypy
+data-science-types
