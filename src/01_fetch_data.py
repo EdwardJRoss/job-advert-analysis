@@ -2,10 +2,9 @@
 from io import BytesIO
 from multiprocessing import Pool
 import logging
-from typing import Generator, Iterable
+from typing import Generator
 from pathlib import Path
 import csv
-import pandas as pd
 from warcio.recordloader import ArcWarcRecord
 from warcio.archiveiterator import ArchiveIterator
 from warcio.warcwriter import WARCWriter
