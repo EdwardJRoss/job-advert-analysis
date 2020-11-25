@@ -1,10 +1,13 @@
+import functools
 import re
 from datetime import datetime, timezone
-import functools
-import requests
-from html2text import HTML2Text
-from bs4 import BeautifulSoup
+
 import mistletoe
+import requests
+from bs4 import BeautifulSoup
+
+from html2text import HTML2Text
+
 
 def datetime_from_iso_utc(t):
     d = datetime.strptime(t, '%Y-%m-%dT%H:%M:%SZ')

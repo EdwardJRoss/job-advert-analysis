@@ -1,7 +1,9 @@
+import json
 import logging
 from typing import Any, Dict
-import json
+
 import demjson
+
 
 class ParseError(Exception):
     pass

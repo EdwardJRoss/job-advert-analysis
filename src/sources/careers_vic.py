@@ -1,7 +1,10 @@
-from typing import Union
-import bs4
 import re
-from lib.normalise import Geocoder, WOF_AUS, WOF_NZ, datetime_from_iso_utc, html2plain
+from typing import Union
+
+import bs4
+
+from lib.normalise import (WOF_AUS, WOF_NZ, Geocoder, datetime_from_iso_utc,
+                           html2plain)
 from lib.salary import get_salary_data
 
 

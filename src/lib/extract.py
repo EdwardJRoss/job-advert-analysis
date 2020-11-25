@@ -1,9 +1,18 @@
 from typing import Any, Dict, Generator
+
 from warcio.recordloader import ArcWarcRecord
-import sources.careers_vic, sources.cgcrecruitment, sources.csiro, \
-    sources.davidsonwp, sources.engineeringjobs, sources.ethicaljobs, \
-    sources.gumtree, sources.iworkfornsw, sources.launchrecruitment, \
-    sources.probono, sources.seek
+
+import sources.careers_vic
+import sources.cgcrecruitment
+import sources.csiro
+import sources.davidsonwp
+import sources.engineeringjobs
+import sources.ethicaljobs
+import sources.gumtree
+import sources.iworkfornsw
+import sources.launchrecruitment
+import sources.probono
+import sources.seek
 
 DATASOURCES = [
     sources.careers_vic.Datasource(),

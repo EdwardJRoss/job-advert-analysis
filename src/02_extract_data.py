@@ -1,12 +1,14 @@
 #!/usr/bin/env python
-import logging
-import pandas as pd
 import json
+import logging
 from pathlib import Path
-from warcio.archiveiterator import ArchiveIterator
-from lib.io import AtomicFileWriter
-from lib.extract import extract_warc
+
+import pandas as pd
 from tqdm import tqdm
+from warcio.archiveiterator import ArchiveIterator
+
+from lib.extract import extract_warc
+from lib.io import AtomicFileWriter
 
 INPUT = Path('../data/01_raw')
 OUTPUT = Path('../data/02_primary')

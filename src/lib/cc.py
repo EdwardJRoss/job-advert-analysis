@@ -1,9 +1,11 @@
 import json
+import logging
 from functools import lru_cache
+
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-import logging
+
 
 def jsonl_loads(jsonl):
     return [json.loads(line) for line in jsonl.splitlines()]

@@ -1,6 +1,9 @@
 from typing import Any, Dict, Generator, Union
+
 import extruct
+
 from lib.normalise import datetime_from_iso_utc, html2plain
+
 
 class Datasource():
     name = 'jsonld'

@@ -1,6 +1,7 @@
-from lib.normalise import Geocoder, WOF_AUS, WOF_NZ, datetime_from_iso_utc, html2plain
-from lib.salary import get_salary_data
 from lib.extractlib import parse_js_obj
+from lib.normalise import (WOF_AUS, WOF_NZ, Geocoder, datetime_from_iso_utc,
+                           html2plain)
+from lib.salary import get_salary_data
 
 AU_GEOCODER = Geocoder(lang='en', filter_country_ids=(WOF_AUS, WOF_NZ))
 JS_STR_REDUX = 'REDUX_DATA ='

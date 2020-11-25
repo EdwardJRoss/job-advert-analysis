@@ -1,4 +1,4 @@
-from lib.normalise import Geocoder, WOF_AUS, WOF_NZ
+from lib.normalise import WOF_AUS, WOF_NZ, Geocoder
 from sources.microdata import Datasource as MicrodataDatasource
 
 AU_GEOCODER = Geocoder(lang='en', filter_country_ids=(WOF_AUS, WOF_NZ))

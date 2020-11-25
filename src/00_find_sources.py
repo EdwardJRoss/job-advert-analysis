@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-import logging
 import csv
+import logging
 from pathlib import Path
+
 import pandas as pd
+
 from lib.cc import cdx_query
 
 SOURCES = Path('./sources.csv')

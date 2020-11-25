@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from kaggle.api.kaggle_api_extended import KaggleApi
 from pathlib import Path
 
+from kaggle.api.kaggle_api_extended import KaggleApi
 
 DEST_DIR = Path().absolute().parent / 'data' / '01_raw' / 'kaggle'
 DEST_DIR.mkdir(exist_ok=True, parents=True)

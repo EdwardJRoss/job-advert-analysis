@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-import logging
-import pandas as pd
 import json
+import logging
 from pathlib import Path
-from lib.extract import normalise_warc
+
+import pandas as pd
 from tqdm import tqdm
+
+from lib.extract import normalise_warc
 
 INPUT = Path('../data/02_primary')
 OUTPUT = Path('../data/03_secondary')

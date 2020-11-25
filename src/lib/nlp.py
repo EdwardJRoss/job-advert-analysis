@@ -1,7 +1,8 @@
-from typing import List, Tuple, Dict, TypeVar, Generator
 import re
-from datasketch import MinHash, MinHashLSH, LeanMinHash
+from typing import Dict, Generator, List, Tuple, TypeVar
+
 import xxhash
+from datasketch import LeanMinHash, MinHash, MinHashLSH
 
 T = TypeVar('T')
 

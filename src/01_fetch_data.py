@@ -1,16 +1,18 @@
 #!/usr/bin/env python
+import csv
+import logging
 from io import BytesIO
 from multiprocessing import Pool
-import logging
-from typing import Generator
 from pathlib import Path
-import csv
-from warcio.recordloader import ArcWarcRecord
+from typing import Generator
+
+from tqdm import tqdm
 from warcio.archiveiterator import ArchiveIterator
+from warcio.recordloader import ArcWarcRecord
 from warcio.warcwriter import WARCWriter
+
 from lib.cc import fetch_cc
 from lib.io import AtomicFileWriter
-from tqdm import tqdm
 
 DEST_DIR = Path('../data/01_raw')
 
@@ -77,6 +79,3 @@ if __name__ == '__main__':
 
     DEST_DIR.mkdir(parents=True, exist_ok=True)
     download_sources(index_files(), DEST_DIR)
-
-
-

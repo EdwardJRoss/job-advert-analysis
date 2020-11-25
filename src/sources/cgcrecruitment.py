@@ -1,4 +1,4 @@
-from lib.normalise import Geocoder, WOF_AUS, WOF_NZ, location_jsonld
+from lib.normalise import WOF_AUS, WOF_NZ, Geocoder, location_jsonld
 from lib.salary import get_salary_data
 from sources.jsonld import Datasource as JSONLinkedDatasource
 
