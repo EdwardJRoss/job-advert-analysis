@@ -1,6 +1,7 @@
 from typing import Generator, FrozenSet, Dict, List, Any, Iterable
 import re
 from itertools import groupby
+import logging
 import rdflib
 from rdflib.namespace import RDF, Namespace
 
