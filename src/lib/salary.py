@@ -141,6 +141,7 @@ def get_salary_data(salary_raw):
 
 
 def test_unit():
+    failed = 0
     for test in salary_tests:
         unit = salary_unit(test.text)
         if test.unit != unit:
