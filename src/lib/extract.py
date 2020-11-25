@@ -29,22 +29,27 @@ DATASOURCES = [
 ]
 
 
-HANDLERS = {source.name: {'extract': source.extract, 'normalise': source.normalise}
-            for source in DATASOURCES}
+HANDLERS = {
+    source.name: {"extract": source.extract, "normalise": source.normalise}
+    for source in DATASOURCES
+}
 
 # TODO: datatype should be enum/list?
-def extract_warc(warc: ArcWarcRecord, parser: str) -> Generator[Dict[str, Any], None, None]:
+def extract_warc(
+    warc: ArcWarcRecord, parser: str
+) -> Generator[Dict[str, Any], None, None]:
     html = warc.content_stream().read()
-    uri = warc.rec_headers['WARC-Target-URI']
-    view_date = warc.rec_headers['WARC-Date']
+    uri = warc.rec_headers["WARC-Target-URI"]
+    view_date = warc.rec_headers["WARC-Date"]
     assert uri is not None
     assert view_date is not None
 
-    data = HANDLERS[parser]['extract'](html, uri, view_date)
+    data = HANDLERS[parser]["extract"](html, uri, view_date)
 
     for datum in data:
         yield datum
 
+
 def normalise_warc(data: Dict[str, Any], parser: str):
-    normalise = HANDLERS[parser]['normalise']
+    normalise = HANDLERS[parser]["normalise"]
     return normalise(**data)

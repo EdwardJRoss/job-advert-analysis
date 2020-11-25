@@ -4,51 +4,53 @@ from typing import Dict, Generator, List, Tuple, TypeVar
 import xxhash
 from datasketch import LeanMinHash, MinHash, MinHashLSH
 
-T = TypeVar('T')
+T = TypeVar("T")
 
-WHITESPACE = re.compile('\s+')
-END_SENTENCE = re.compile('[.!?]\s+')
+WHITESPACE = re.compile("\s+")
+END_SENTENCE = re.compile("[.!?]\s+")
 
 
 def tokenize(s: str) -> List[str]:
-    '''Split a string into tokens'''
+    """Split a string into tokens"""
     return WHITESPACE.split(s)
 
 
 def untokenize(ts: List[str]) -> str:
-    '''Join a list of tokens into a string'''
-    return ' '.join(ts)
+    """Join a list of tokens into a string"""
+    return " ".join(ts)
 
 
 def sentencize(s: str) -> List[str]:
-    '''Split a string into a list of sentences'''
+    """Split a string into a list of sentences"""
     return END_SENTENCE.split(s)
 
 
 def unsentencise(ts: List[str]) -> str:
-    '''Join a list of sentences into a string'''
-    return '. '.join(ts)
+    """Join a list of sentences into a string"""
+    return ". ".join(ts)
 
 
 def html_unsentencise(ts: List[str]) -> str:
-    '''Joing a list of sentences into HTML for display'''
-    return ''.join(f'<p>{t}</p>' for t in ts)
+    """Joing a list of sentences into HTML for display"""
+    return "".join(f"<p>{t}</p>" for t in ts)
 
 
 def minhash(seq: List[str], num_perm: int = 128) -> MinHash:
     """Return the minhash of seq using num_perm permutations"""
     m = MinHash(num_perm=num_perm, hashfunc=xxhash.xxh64_intdigest)
     for s in seq:
-        m.update(s.encode('utf8'))
+        m.update(s.encode("utf8"))
     return LeanMinHash(m)
 
 
 def minhash_lsh_probability(s: float, bands: int, rows: int) -> float:
     """Probability of Minhash LSH returning item with similarity s"""
-    return 1 - (1 - s**rows)**bands
+    return 1 - (1 - s ** rows) ** bands
 
 
-def lsh_similar(minhashes: Dict[T, MinHash], num_perm: int, bands: int, rows: int) -> Generator[Tuple[T, T], None, None]:
+def lsh_similar(
+    minhashes: Dict[T, MinHash], num_perm: int, bands: int, rows: int
+) -> Generator[Tuple[T, T], None, None]:
     """Yields all of similar pairs of minhashes using LSH
 
     minhashes - Dictionary of key to Minhash
@@ -71,7 +73,7 @@ def subseq(seq: List[T], n: int = 1) -> List[Tuple[T, ...]]:
 
     Example: subseq([1,2,3,4], n=2) == [(1,2), (2,3), (3,4)]
     """
-    return [tuple(seq[i:i+n]) for i in range(0, len(seq)+1-n)]
+    return [tuple(seq[i : i + n]) for i in range(0, len(seq) + 1 - n)]
 
 
 def shingle(seq: List[str], n: int = 1) -> List[str]:
