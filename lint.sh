@@ -8,4 +8,4 @@ python -m pyflakes src/
 python -m isort -m 3 -tc -c
 black --check -t py36 src/
 cd src
-mypy lib/cc.py lib/extractlib.py 00_find_sources.py
+mypy lib/cc.py lib/extractlib.py 00_find_sources.py 01_fetch_data.py

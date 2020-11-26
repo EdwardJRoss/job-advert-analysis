@@ -1,0 +1,2 @@
+class ArcWarcRecord(object):
+    pass
