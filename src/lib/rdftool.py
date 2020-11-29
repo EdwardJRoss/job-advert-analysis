@@ -54,7 +54,7 @@ def parse_nquads(lines: Iterable[str]) -> Generator[rdflib.Graph, None, None]:
         try:
             graph.parse(data="".join(quad_lines), format="nquads")
             yield graph
-        except rdflib.plugins.parsers.ntriples.ParseError as e: # type: ignore
+        except rdflib.plugins.parsers.ntriples.ParseError as e:  # type: ignore
             logging.error(truncate_message(e))
 
 
@@ -102,7 +102,7 @@ def _graph_to_dict(
         if obj in seen:
             raise CycleError(f"Cyclic reference to {obj} in {graph.identifier}")
         elif isinstance(obj, rdflib.term.BNode):
-            obj_value:Any = _graph_to_dict(graph, obj, seen.union([obj]))
+            obj_value: Any = _graph_to_dict(graph, obj, seen.union([obj]))
         else:
             obj_value = obj.toPython()
         result[predicate_value] = result.get(predicate_value, []) + [obj_value]

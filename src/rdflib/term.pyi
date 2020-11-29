@@ -14,4 +14,3 @@ class BNode(Identifier):
 
 class Literal(Identifier):
     def toPython(self) -> Any: ...
-
