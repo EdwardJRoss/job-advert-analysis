@@ -36,7 +36,9 @@ def get_quad_label(line: str) -> str:
     > get_quad_label('<subject> <predicate> "an object" <http://example.org/label> .\n')
     >> 'http.example.org/label'
     """
-    return RDF_QUAD_LABEL_RE.search(line).group(1)
+    quad_results = RDF_QUAD_LABEL_RE.search(line)
+    assert quad_results is not None
+    return quad_results.group(1)
 
 
 def truncate_message(msg, max_char=255):
@@ -52,7 +54,7 @@ def parse_nquads(lines: Iterable[str]) -> Generator[rdflib.Graph, None, None]:
         try:
             graph.parse(data="".join(quad_lines), format="nquads")
             yield graph
-        except rdflib.plugins.parsers.ntriples.ParseError as e:
+        except rdflib.plugins.parsers.ntriples.ParseError as e: # type: ignore
             logging.error(truncate_message(e))
 
 
@@ -74,12 +76,12 @@ def get_job_postings(graph: rdflib.Graph) -> Generator[rdflib.term.BNode, None, 
 
 def get_blank_subjects(graph: rdflib.Graph) -> FrozenSet[rdflib.term.BNode]:
     """Returns all blank subjects in graph"""
-    return frozenset(s for s in graph.subjects() if type(s) == rdflib.term.BNode)
+    return frozenset(s for s in graph.subjects() if isinstance(s, rdflib.term.BNode))
 
 
 def get_blank_objects(graph: rdflib.Graph) -> FrozenSet[rdflib.term.BNode]:
     """Returns all blank objects in graph"""
-    return frozenset(o for o in graph.objects() if type(o) == rdflib.term.BNode)
+    return frozenset(o for o in graph.objects() if isinstance(o, rdflib.term.BNode))
 
 
 def get_root_blanks(graph: rdflib.Graph) -> FrozenSet[rdflib.term.BNode]:
@@ -96,14 +98,14 @@ def _graph_to_dict(
 ) -> Dict[str, List[Any]]:
     result = {}  # type: Dict[str, List[Any]]
     for predicate, obj in graph.predicate_objects(root):
-        predicate = predicate.toPython()
+        predicate_value = predicate.toPython()
         if obj in seen:
             raise CycleError(f"Cyclic reference to {obj} in {graph.identifier}")
-        elif type(obj) == rdflib.term.BNode:
-            obj = _graph_to_dict(graph, obj, seen.union([obj]))
+        elif isinstance(obj, rdflib.term.BNode):
+            obj_value:Any = _graph_to_dict(graph, obj, seen.union([obj]))
         else:
-            obj = obj.toPython()
-        result[predicate] = result.get(predicate, []) + [obj]
+            obj_value = obj.toPython()
+        result[predicate_value] = result.get(predicate_value, []) + [obj_value]
     return result
 
 
