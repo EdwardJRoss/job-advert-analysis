@@ -2,7 +2,7 @@ from typing import IO, Any, Dict, Generator, List, Optional, Union
 
 class PageElement:
     @property
-    def next_siblings(self) -> Generator[Tag, None, None]: ...
+    def next_siblings(self) -> Generator[PageElement, None, None]: ...
 
 class Tag(PageElement):
     def select_one(
@@ -17,8 +17,6 @@ class Tag(PageElement):
         strip: bool = False
         # types=(NavigableString, CData)
     ) -> str: ...
-    @property
-    def next_siblings(self) -> Generator[Tag, None, None]: ...
     def find(
         self, name: Optional[str] = None, attrs={}, recursive=True, text=None, **kwargs
     ) -> Optional[PageElement]: ...
