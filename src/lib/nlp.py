@@ -59,7 +59,7 @@ def lsh_similar(
     rows      - Number of rows to use in LSH
 
     """
-    lsh = MinHashLSH(num_perm=num_perm, params=(bands, rows))
+    lsh = MinHashLSH[T](num_perm=num_perm, params=(bands, rows))
     for i, mh in minhashes.items():
         # Check if duplicate of already seen item
         for j in lsh.query(mh):
