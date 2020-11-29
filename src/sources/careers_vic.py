@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Union
 
@@ -11,6 +12,8 @@ from lib.normalise import (
     html2plain,
 )
 from lib.salary import get_salary_data
+
+from .abstract_datasource import AbstractDatasource
 
 
 def fixup_careers_vic_location(loc):
@@ -41,7 +44,7 @@ def fixup_careers_vic_location(loc):
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 
 
-class Datasource:
+class Datasource(AbstractDatasource):
     name = "careers_vic"
 
     def extract(self, html: Union[bytes, str], uri, view_date):
@@ -49,12 +52,19 @@ class Datasource:
         data = {}
         for info in soup.select(".txt-info"):
             key = info.select_one(".txt-bold")
+            if not key:
+                continue
             key_text = key.get_text().strip()
             value = "".join(str(s).strip() for s in key.next_siblings)
             data[key_text] = value
 
-            title = str(soup.select_one(".txt-title").get_text())
-            description = str(soup.select_one(".txt-pre-line"))
+            title_tag = soup.select_one(".txt-title")
+            if not title_tag:
+                logging.warning("Missing title tag in %s", uri)
+                title = None
+            else:
+                title = str(title_tag.get_text())
+            description = str(soup.select_one(".txt-pre-line") or "")
         return [
             {
                 "title": title,

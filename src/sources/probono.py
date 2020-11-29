@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Union
 
@@ -11,6 +12,8 @@ from lib.normalise import (
     html2plain,
 )
 from lib.salary import get_salary_data
+
+from .abstract_datasource import AbstractDatasource
 
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 
@@ -30,24 +33,34 @@ def fix_probono_location(loc):
     return re.sub(r"(.*)\((.*)\)", "\\2, \\1", loc)
 
 
-class Datasource:
+class Datasource(AbstractDatasource):
     name = "probono"
 
     def extract(self, html: Union[bytes, str], uri, view_date):
         soup = bs4.BeautifulSoup(html, "html5lib")
-        infos = soup.select_one(".org-basic-info").div.select("p.org-add")
+        infos = soup.select(".org-basic-info > div > p.org-add")
         data = {}
         for info in infos:
-            key = info.b
+            key = info.select_one("b")
+            if not key:
+                logging.warning("Missing key in %s; %s", uri, info)
+                continue
             schema_key = key.get_text().strip()
             value = "".join(
                 str(s.get_text() if isinstance(s, bs4.element.Tag) else s).strip()
                 for s in key.next_siblings
             )
             data[schema_key] = value
-        description = str(soup.select_one("#about-role"))
-        hiringOrganization_description = str(soup.select_one("#about-organisation"))
-        title = soup.h1.get_text().strip()
+        description = str(soup.select_one("#about-role") or "")
+        hiringOrganization_description = str(
+            soup.select_one("#about-organisation") or ""
+        )
+        header = soup.select_one("h1")
+        if not header:
+            logging.warning("Missing header: %s", uri)
+            title = None
+        else:
+            title = header.get_text().strip()
         return [
             {
                 "title": title,

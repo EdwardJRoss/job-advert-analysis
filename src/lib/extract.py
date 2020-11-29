@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generator
+from typing import Any, Dict, Generator, List
 
 from warcio.recordloader import ArcWarcRecord
 
@@ -13,8 +13,9 @@ import sources.iworkfornsw
 import sources.launchrecruitment
 import sources.probono
 import sources.seek
+from sources.abstract_datasource import AbstractDatasource
 
-DATASOURCES = [
+DATASOURCES: List[AbstractDatasource] = [
     sources.careers_vic.Datasource(),
     sources.cgcrecruitment.Datasource(),
     sources.csiro.Datasource(),
@@ -29,10 +30,7 @@ DATASOURCES = [
 ]
 
 
-HANDLERS = {
-    source.name: {"extract": source.extract, "normalise": source.normalise}
-    for source in DATASOURCES
-}
+HANDLERS = {source.name: source for source in DATASOURCES}
 
 # TODO: datatype should be enum/list?
 def extract_warc(
@@ -44,12 +42,12 @@ def extract_warc(
     assert uri is not None
     assert view_date is not None
 
-    data = HANDLERS[parser]["extract"](html, uri, view_date)
+    data = HANDLERS[parser].extract(html, uri, view_date)
 
     for datum in data:
         yield datum
 
 
 def normalise_warc(data: Dict[str, Any], parser: str):
-    normalise = HANDLERS[parser]["normalise"]
+    normalise = HANDLERS[parser].normalise
     return normalise(**data)

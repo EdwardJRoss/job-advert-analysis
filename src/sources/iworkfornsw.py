@@ -1,3 +1,4 @@
+import logging
 from typing import Union
 
 import bs4
@@ -10,6 +11,8 @@ from lib.normalise import (
     html2plain,
 )
 from lib.salary import get_salary_data
+
+from .abstract_datasource import AbstractDatasource
 
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 
@@ -37,21 +40,29 @@ def fixup_iworkfornsw_loc(loc):
 # }
 
 
-class Datasource:
+class Datasource(AbstractDatasource):
     name = "iworkfornsw"
 
     def extract(self, html: Union[bytes, str], uri, view_date):
         soup = bs4.BeautifulSoup(html, "html5lib")
-        body = soup.find("tbody")
+        body = soup.select_one("tbody")
         # Some pages are missing a body; e.g. CC-MAIN-2018-17
         if not body:
             return []
-        infos = body.find_all("tr")
-        data = {
-            info.th.get_text().strip(): info.td.get_text().strip() for info in infos
-        }
-        title = soup.select_one(".job-detail-title").get_text().strip()
-        description = str(soup.select_one(".job-detail-des"))
+        infos = body.select("tr")
+        data = {}
+        for info in infos:
+            key = info.select_one("th")
+            value = info.select_one("td")
+            if key and value:
+                data[key.get_text().strip()] = value.get_text().strip()
+        title_tag = soup.select_one(".job-detail-title")
+        if not title_tag:
+            logging.warning("Missing title tag in %s, %s", uri, view_date)
+            title = None
+        else:
+            title = title_tag.get_text().strip()
+        description = str(soup.select_one(".job-detail-des") or "")
         return [
             {
                 "title": title,

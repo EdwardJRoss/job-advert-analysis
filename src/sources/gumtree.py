@@ -8,15 +8,17 @@ from lib.normalise import (
 )
 from lib.salary import get_salary_data
 
+from .abstract_datasource import AbstractDatasource
+
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 
 JS_STR_APP = "window.APP_DATA ="
 
 
-class Datasource:
+class Datasource(AbstractDatasource):
     name = "gt"
 
-    def extract(self, html: str, uri, view_date):
+    def extract(self, html: bytes, uri, view_date):
         text = html.decode("utf-8")
         obj = parse_js_obj(text, JS_STR_APP)
         if obj is None:
