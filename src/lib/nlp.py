@@ -86,7 +86,7 @@ def jaccard(a: set, b: set) -> float:
     return n / (len(a) + len(b) - n)
 
 
-def relevance(text_a, text_b, k):
+def relevance(text_a: str, text_b: str, k: int) -> float:
     bag_a = set(shingle(tokenize(text_a), k))
     bag_b = set(shingle(tokenize(text_b), k))
     return jaccard(bag_a, bag_b)
