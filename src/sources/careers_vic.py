@@ -3,7 +3,6 @@ import re
 from typing import Union
 
 import bs4
-
 from lib.normalise import (
     WOF_AUS,
     WOF_NZ,

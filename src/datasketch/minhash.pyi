@@ -1,6 +1,7 @@
 from typing import Callable, Union
 
 import numpy as np
+
 from datasketch.hashfunc import sha1_hash32
 
 class MinHash:

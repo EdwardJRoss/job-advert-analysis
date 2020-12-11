@@ -5,10 +5,10 @@ from pathlib import Path
 
 import pandas as pd
 from tqdm import tqdm
-from warcio.archiveiterator import ArchiveIterator
 
 from lib.extract import extract_warc
 from lib.io import AtomicFileWriter
+from warcio.archiveiterator import ArchiveIterator
 
 INPUT = Path("../data/01_raw")
 OUTPUT = Path("../data/02_primary")

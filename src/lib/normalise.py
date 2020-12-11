@@ -2,11 +2,11 @@ import functools
 import re
 from datetime import datetime, timezone
 
-import mistletoe
 import requests
-from bs4 import BeautifulSoup
-
 from html2text import HTML2Text
+
+import mistletoe
+from bs4 import BeautifulSoup
 
 
 def datetime_from_iso_utc(t):

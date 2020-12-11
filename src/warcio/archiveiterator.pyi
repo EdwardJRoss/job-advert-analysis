@@ -1,6 +1,7 @@
 from typing import BinaryIO, Generator
 
 import six
+
 from warcio.recordloader import ArcWarcRecord
 
 BUFF_SIZE: int

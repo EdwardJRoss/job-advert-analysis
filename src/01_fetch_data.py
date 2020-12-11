@@ -7,12 +7,12 @@ from pathlib import Path
 from typing import Generator
 
 from tqdm import tqdm
-from warcio.archiveiterator import ArchiveIterator
-from warcio.recordloader import ArcWarcRecord
-from warcio.warcwriter import WARCWriter
 
 from lib.cc import fetch_cc
 from lib.io import AtomicFileWriter
+from warcio.archiveiterator import ArchiveIterator
+from warcio.recordloader import ArcWarcRecord
+from warcio.warcwriter import WARCWriter
 
 DEST_DIR = Path("../data/01_raw")
 

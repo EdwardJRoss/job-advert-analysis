@@ -1,5 +1,4 @@
 import extruct
-
 from lib.normalise import datetime_from_iso_utc, html2plain
 
 from .abstract_datasource import AbstractDatasource

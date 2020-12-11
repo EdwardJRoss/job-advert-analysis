@@ -1,7 +1,5 @@
 from typing import Any, Dict, Generator, List
 
-from warcio.recordloader import ArcWarcRecord
-
 import sources.careers_vic
 import sources.cgcrecruitment
 import sources.csiro
@@ -14,6 +12,7 @@ import sources.launchrecruitment
 import sources.probono
 import sources.seek
 from sources.abstract_datasource import AbstractDatasource
+from warcio.recordloader import ArcWarcRecord
 
 DATASOURCES: List[AbstractDatasource] = [
     sources.careers_vic.Datasource(),
