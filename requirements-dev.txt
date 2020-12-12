@@ -1,5 +1,5 @@
 pyflakes
-isort
+isort >= 5.6.4
 black
 
 mypy
