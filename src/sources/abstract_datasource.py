@@ -109,6 +109,10 @@ class AbstractDatasource(ABC):
 
                 normalised_data = [self.normalise(**datum) for datum in source_data]
 
+                for datum in normalised_data:
+                    datum["processor"] = self.name
+                    datum["source"] = name
+
                 # Is there a more sensible output format??
                 if normalised_data:
                     df = pd.DataFrame(normalised_data)
