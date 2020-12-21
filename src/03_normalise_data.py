@@ -46,4 +46,4 @@ if __name__ == "__main__":
     logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
 
     for datasource in DATASOURCES:
-        datasource.normalise_all(INPUT / datasource.name, OUTPUT)
+        datasource.normalise_all(INPUT / datasource.name, OUTPUT / datasource.name)
