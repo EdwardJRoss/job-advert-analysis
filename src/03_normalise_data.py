@@ -33,9 +33,9 @@ DATASOURCES: List[AbstractDatasource] = [
     sources.probono.Datasource(),
     sources.seek.Datasource(),
     sources.kaggle_promptcloud_listings.Datasource(),
-    sources.kaggle_promptcloud_gumtree.Datasource(),
+#    sources.kaggle_promptcloud_gumtree.Datasource(),
     sources.kaggle_promptcloud_latest.Datasource(),
-    sources.kaggle_datascienceau_201910.Datasource(),
+#    sources.kaggle_datascienceau_201910.Datasource(),
 ]
 
 
