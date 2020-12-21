@@ -20,10 +20,15 @@ class Datasource(CommonCrawlDatasource):
             description = html2plain(data["description"])
         else:
             description = None
+
+        org = data.get("hiringOrganization")
+        if isinstance(org, dict):
+            org = org["name"]
+
         return {
             "title": data["title"],
             "description": description,
             "uri": uri,
             "view_date": datetime_from_iso_utc(view_date),
-            "org": data.get("hiringOrganization"),
+            "org": org,
         }
