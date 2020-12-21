@@ -21,11 +21,7 @@ python -m spacy download en_core_web_lg
 
 For [downloading the Kaggle data](src/01b_fetch_kaggle_data.py) you will need [Kaggle API credentials](https://github.com/Kaggle/kaggle-api) set up, and accept the [competition rules](https://www.kaggle.com/c/job-salary-prediction/data). 
 Alternatively you can manually download and unzip the data from Kaggle directly.
-Note that by the competition rules:
 
-> Participants may only use the data for participation in the competition or for academic research purposes (crediting Adzuna), under no circumstances can this data be distributed or used for other commercial purposes.
-
-This repository is essentially academic research; thanks Adzuna!
 
 # Runnning
 
@@ -33,8 +29,3 @@ You can run the whole pipeline in the [src](/src) folder by running `./run.sh`, 
 
 !! Placeholder running on port 3000
 
-# Todo
-
-Can we add new data sources like https://www.kaggle.com/PromptCloudHQ/usbased-jobs-from-dicecom and https://www.kaggle.com/PromptCloudHQ/us-jobs-on-monstercom?
-
-Can we get any other sources of job ads?

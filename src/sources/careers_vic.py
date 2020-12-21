@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Union
+from typing import Any, Dict, List, Union
 
 import bs4
 from lib.normalise import (
@@ -11,8 +11,8 @@ from lib.normalise import (
     html2plain,
 )
 from lib.salary import get_salary_data
-
-from .abstract_datasource import AbstractDatasource
+from sources.abstract_datasource import module_name
+from sources.commoncrawl_datasource import CommonCrawlDatasource
 
 
 def fixup_careers_vic_location(loc):
@@ -43,10 +43,12 @@ def fixup_careers_vic_location(loc):
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 
 
-class Datasource(AbstractDatasource):
-    name = "careers_vic"
+class Datasource(CommonCrawlDatasource):
 
-    def extract(self, html: Union[bytes, str], uri, view_date):
+    name = module_name(__name__)
+    query = "careers.vic.gov.au/job/*"
+
+    def extract(self, html: Union[bytes, str], uri, view_date) -> List[Dict[Any, Any]]:
         soup = bs4.BeautifulSoup(html, "html5lib")
         data = {}
         for info in soup.select(".txt-info"):

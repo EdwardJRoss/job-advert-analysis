@@ -1,11 +1,13 @@
 from lib.normalise import WOF_AUS, WOF_NZ, Geocoder
+from sources.abstract_datasource import module_name
 from sources.microdata import Datasource as MicrodataDatasource
 
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 
 
 class Datasource(MicrodataDatasource):
-    name = "jobs.csiro.au"
+    name = module_name(__name__)
+    query = "jobs.csiro.au/job/*"
 
     def normalise(self, data, uri, view_date):
         # Description is dometimes a list, e.g. CC-MAIN-2019-18

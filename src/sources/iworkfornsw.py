@@ -10,8 +10,8 @@ from lib.normalise import (
     html2plain,
 )
 from lib.salary import get_salary_data
-
-from .abstract_datasource import AbstractDatasource
+from sources.abstract_datasource import module_name
+from sources.commoncrawl_datasource import CommonCrawlDatasource
 
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 
@@ -39,8 +39,9 @@ def fixup_iworkfornsw_loc(loc):
 # }
 
 
-class Datasource(AbstractDatasource):
-    name = "iworkfornsw"
+class Datasource(CommonCrawlDatasource):
+    name = module_name(__name__)
+    query = "iworkfor.nsw.gov.au/job/*"
 
     def extract(self, html: Union[bytes, str], uri, view_date):
         soup = bs4.BeautifulSoup(html, "html5lib")

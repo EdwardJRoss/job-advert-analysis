@@ -84,7 +84,9 @@ def cdx_query(
     api: str, query: str, filters: Optional[List[str]] = None
 ) -> Generator[CrawlResultDict, None, None]:
     filters = ["=status:200"] + (filters or [])
-    for page in range(cdx_num_pages(api, query, filters)):
+    num_pages = cdx_num_pages(api, query, filters)
+    for page in range(num_pages):
+        logging.debug(f"Querying page {page} of {num_pages} for {query} on {api}")
         for result in cdx_query_page(api, query, page, filters):
             yield result
 

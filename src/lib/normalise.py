@@ -93,19 +93,29 @@ class Geocoder:
 
 def location_jsonld(data, default_country="AU"):
     parts = []
-    locality = data["jobLocation"]["address"]["addressLocality"]
+    address = data["jobLocation"]["address"]
+    if isinstance(address, str):
+        address = {
+            "addressLocality": address,
+            "addressRegion": None,
+            "postalCode": None,
+            "addressCountry": None,
+        }
+
+    data = data.copy()
+    locality = address["addressLocality"]
     if locality:
         # Fixup
         locality_out = re.sub(" C B D$", "", locality)
         parts.append(locality_out)
-    region = data["jobLocation"]["address"]["addressRegion"]
+    region = address["addressRegion"]
     if region and region != locality:
         region_out = re.sub(" C B D$", "", region)
         parts.append(region_out)
-    postalCode = data["jobLocation"]["address"]["postalCode"]
+    postalCode = address["postalCode"]
     if postalCode:
         parts.append(postalCode)
-    country = data["jobLocation"]["address"]["addressCountry"]
+    country = address["addressCountry"]
     if country:
         parts.append(country)
     elif default_country:

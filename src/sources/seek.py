@@ -7,15 +7,17 @@ from lib.normalise import (
     html2plain,
 )
 from lib.salary import get_salary_data
-
-from .abstract_datasource import AbstractDatasource
+from sources.abstract_datasource import module_name
+from sources.commoncrawl_datasource import CommonCrawlDatasource
 
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 JS_STR_REDUX = "REDUX_DATA ="
 
 
-class Datasource(AbstractDatasource):
-    name = "sk"
+class Datasource(CommonCrawlDatasource):
+    name = module_name(__name__)
+    query = "seek.com.au/job/*"
+    query_filters = ["!~url:.*/apply/*"]
 
     def extract(self, html: bytes, uri, view_date):
         text = html.decode("utf-8")

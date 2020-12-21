@@ -1,11 +1,11 @@
 import extruct
 from lib.normalise import datetime_from_iso_utc, html2plain
+from sources.abstract_datasource import module_name
+from sources.commoncrawl_datasource import CommonCrawlDatasource
 
-from .abstract_datasource import AbstractDatasource
 
-
-class Datasource(AbstractDatasource):
-    name = "jsonld"
+class Datasource(CommonCrawlDatasource):
+    name = module_name(__name__)
 
     def extract(self, html: bytes, base_url: str, view_date):
         data = extruct.extract(html, base_url, syntaxes=["json-ld"])["json-ld"]
