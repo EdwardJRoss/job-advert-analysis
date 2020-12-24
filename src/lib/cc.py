@@ -93,7 +93,7 @@ def cdx_query(
 
 # TODO: This should all be wrapped in an object rather than a global
 CC_DATA_URL = "https://commoncrawl.s3.amazonaws.com/"
-RETRY_STRATEGY = Retry(total=5, backoff_factor=1)
+RETRY_STRATEGY = Retry(total=5, backoff_factor=1, status_forcelist=set([504, 500]))
 ADAPTER = HTTPAdapter(max_retries=RETRY_STRATEGY)
 CC_HTTP = requests.Session()
 CC_HTTP.mount(CC_DATA_URL, ADAPTER)
