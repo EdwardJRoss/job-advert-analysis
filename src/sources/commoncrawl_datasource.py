@@ -64,6 +64,11 @@ class CommonCrawlDatasource(AbstractDatasource):
     raw_extension = ".warc.gz"
 
     sources = {
+        "CC-MAIN-2020-50": "https://index.commoncrawl.org/CC-MAIN-2020-50-index",
+        "CC-MAIN-2020-45": "https://index.commoncrawl.org/CC-MAIN-2020-45-index",
+        "CC-MAIN-2020-40": "https://index.commoncrawl.org/CC-MAIN-2020-40-index",
+        "CC-MAIN-2020-34": "https://index.commoncrawl.org/CC-MAIN-2020-34-index",
+        "CC-MAIN-2020-29": "https://index.commoncrawl.org/CC-MAIN-2020-29-index",
         "CC-MAIN-2020-24": "https://index.commoncrawl.org/CC-MAIN-2020-24-index",
         "CC-MAIN-2020-16": "https://index.commoncrawl.org/CC-MAIN-2020-16-index",
     }
