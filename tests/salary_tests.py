@@ -123,8 +123,11 @@ salary_tests = [
     #salarytest("Please call 08 7729 1352 for further information"),
     #salarytest("Children's Services Award Victoria 2010 3.1-3.4"),
     salarytest("4 nights Mon -Thu, night shift (10pm to 8am)"),
-    salarytest("$85k _$95k Base +Package", 85_000, 95_000),
+    salarytest("$85k _$95k Base +Package", 85_000, 95_000, super=False),
     #salarytest("$115,824  $156,740", 115_824, 156_740),
+    #salarytest("Up to $100000.00 p.a. + Car + $15 - $20k Commission", 100_000, unit=YEAR),
+    #salarytest("$30000 plus if working 4 shifts a week", 30_000),
+    salarytest("Subject to QLD Anglican Schools EBA 2018"),
 
 ]
 

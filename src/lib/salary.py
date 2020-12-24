@@ -34,7 +34,8 @@ def parse_number(number):
     number = number.lower().replace("k", "000")
     return float(number)
 
-
+def is_year(number:int) -> bool:
+    return 1900 < number < 2050
 
 def fix_salary_scale(low, high):
     if low * 1000 < high < low * 2000:
@@ -60,7 +61,9 @@ def extract_salary(text):
             return parse_number(match), None
     if matches:
         match = matches[0]
-        return parse_number(match), None
+        ans = parse_number(match)
+        if not is_year(ans):
+            return ans, None
     return (None, None)
 
 
