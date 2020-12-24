@@ -47,7 +47,8 @@ salary_tests = [
     salarytest("$53000 per annum", 53_000, unit=YEAR),
     salarytest("$57,000 incl Super + bonuses", 57_000, super=True),
     salarytest("$110k + bonus", 110_000),
-    # salarytest("£110000 - £120000 per annum"),
+    # TODO: Currency
+    salarytest("£110000 - £120000 per annum", 110_000, 120_000, YEAR),
     salarytest("Up to $220K Package", 220_000),
     salarytest("$170-180k + Profit Share", 170_000, 180_000),
     salarytest("$55K - $70K + Superannuation", 55_000, 70_000),
@@ -116,6 +117,15 @@ salary_tests = [
     # salarytest("Level 6 - $94,409 to $103,497 / Level 7- $107,134 to $118,283", 94_409, 118_283),
     salarytest("$100,000 +", 100_000),
     salarytest("80-90k pro rata", 80_000, 90_000),
+    salarytest("Express Process You Could Be Working In 3 Days"),
+    salarytest("Competitive Salary + 17.5% Leave Loading + RDO"),
+    # Hard
+    #salarytest("Please call 08 7729 1352 for further information"),
+    #salarytest("Children's Services Award Victoria 2010 3.1-3.4"),
+    salarytest("4 nights Mon -Thu, night shift (10pm to 8am)"),
+    salarytest("$85k _$95k Base +Package", 85_000, 95_000),
+    #salarytest("$115,824  $156,740", 115_824, 156_740),
+
 ]
 
 
