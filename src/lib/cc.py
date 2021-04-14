@@ -15,6 +15,17 @@ def jsonl_loads(jsonl):
 
 INDEXES_URL = "https://index.commoncrawl.org/collinfo.json"
 
+# TODO: This should all be wrapped in an object rather than a global
+CC_DATA_URL = "https://commoncrawl.s3.amazonaws.com/"
+RETRY_STRATEGY = Retry(total=5, backoff_factor=1, status_forcelist=set([504, 500]))
+ADAPTER = HTTPAdapter(max_retries=RETRY_STRATEGY)
+CC_HTTP = requests.Session()
+CC_HTTP.mount(CC_DATA_URL, ADAPTER)
+
+CC_INDEX = requests.Session()
+CC_INDEX.mount("https://index.commoncrawl.org/", ADAPTER)
+
+
 CrawlIndexDict = TypedDict(
     "CrawlIndexDict", {"id": str, "name": str, "timegate": str, "cdx-api": str}
 )
@@ -38,7 +49,7 @@ CrawlResultDict = TypedDict(
 
 @lru_cache(maxsize=1)
 def get_indexes() -> List[CrawlIndexDict]:
-    r = requests.get(INDEXES_URL)
+    r = CC_INDEX.get(INDEXES_URL)
     r.raise_for_status()
     return r.json()
 
@@ -50,7 +61,7 @@ def cdx_num_pages(api: str, query: str, filters: Optional[List[str]] = None) -> 
         "showNumPages": True,
         "filter": filters or [],
     }
-    r = requests.get(
+    r = CC_INDEX.get(
         api,
         params=params,
     )
@@ -68,7 +79,7 @@ def cdx_query_page(
         "filter": filters or [],
         "page": page,
     }
-    r = requests.get(
+    r = CC_INDEX.get(
         api,
         params=params,
     )
@@ -90,13 +101,6 @@ def cdx_query(
         for result in cdx_query_page(api, query, page, filters):
             yield result
 
-
-# TODO: This should all be wrapped in an object rather than a global
-CC_DATA_URL = "https://commoncrawl.s3.amazonaws.com/"
-RETRY_STRATEGY = Retry(total=5, backoff_factor=1, status_forcelist=set([504, 500]))
-ADAPTER = HTTPAdapter(max_retries=RETRY_STRATEGY)
-CC_HTTP = requests.Session()
-CC_HTTP.mount(CC_DATA_URL, ADAPTER)
 
 
 def fetch_cc(filename: str, offset: int, length: int) -> bytes:
