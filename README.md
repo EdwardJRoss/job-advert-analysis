@@ -1,7 +1,7 @@
-Enriching and processing data from the [Job Salary Prediction Kaggle Competiton](https://www.kaggle.com/c/job-salary-prediction/data).
+Enriching and processing Job Data from Common Crawl and other sources.
 
 This repository looks at methods of aggregating information from the job ad data.
-See [the related articles](https://skeptric.com/tags/jobs/) for more information about the techniques used.
+See [an introduction of fetching Job Data from CommonCrawl](https://skeptric.com/common-crawl-job-ads/) and [the related articles](https://skeptric.com/tags/jobs/) for more information about the techniques used.
 
 # Setup
 
