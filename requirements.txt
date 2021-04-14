@@ -6,6 +6,8 @@ xxhash
 tqdm
 spacy
 
+html2text
+
 warcio
 demjson
 extruct
