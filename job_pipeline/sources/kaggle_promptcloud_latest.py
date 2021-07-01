@@ -3,10 +3,10 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Generator
 
-from lib.normalise import WOF_AUS, WOF_NZ, Geocoder
-from lib.salary import get_salary_data
-from sources.abstract_datasource import module_name
-from sources.kaggle_datasource import KaggleDatasource
+from job_pipeline.lib.normalise import WOF_AUS, WOF_NZ, Geocoder
+from job_pipeline.lib.salary import get_salary_data
+from job_pipeline.sources.abstract_datasource import module_name
+from job_pipeline.sources.kaggle_datasource import KaggleDatasource
 
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 

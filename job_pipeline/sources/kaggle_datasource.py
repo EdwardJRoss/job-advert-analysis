@@ -5,7 +5,8 @@ from pathlib import Path
 from zipfile import ZipFile
 
 from kaggle.api.kaggle_api_extended import KaggleApi
-from sources.abstract_datasource import AbstractDatasource
+
+from job_pipeline.sources.abstract_datasource import AbstractDatasource
 
 
 class KaggleDatasource(AbstractDatasource):

@@ -5,13 +5,13 @@ from pathlib import Path
 from typing import Any, Dict, Generator, List
 
 from tqdm import tqdm
-
-from lib.cc import CrawlResultDict, cdx_query, fetch_cc
-from lib.io import AtomicFileWriter
-from sources.abstract_datasource import AbstractDatasource
 from warcio.archiveiterator import ArchiveIterator
 from warcio.recordloader import ArcWarcRecord
 from warcio.warcwriter import WARCWriter
+
+from job_pipeline.lib.cc import CrawlResultDict, cdx_query, fetch_cc
+from job_pipeline.lib.io import AtomicFileWriter
+from job_pipeline.sources.abstract_datasource import AbstractDatasource
 
 _DEFAULT_NTHREAD = 32
 

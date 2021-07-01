@@ -102,7 +102,6 @@ def cdx_query(
             yield result
 
 
-
 def fetch_cc(filename: str, offset: int, length: int) -> bytes:
     data_url = CC_DATA_URL + filename
     start_byte = int(offset)

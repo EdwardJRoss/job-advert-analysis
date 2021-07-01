@@ -5,6 +5,7 @@ datasketch
 xxhash
 tqdm
 spacy
+mistletoe
 
 html2text
 

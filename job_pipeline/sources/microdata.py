@@ -1,7 +1,8 @@
 import extruct
-from lib.normalise import datetime_from_iso_utc, html2plain
-from sources.abstract_datasource import module_name
-from sources.commoncrawl_datasource import CommonCrawlDatasource
+
+from job_pipeline.lib.normalise import datetime_from_iso_utc, html2plain
+from job_pipeline.sources.abstract_datasource import module_name
+from job_pipeline.sources.commoncrawl_datasource import CommonCrawlDatasource
 
 
 class Datasource(CommonCrawlDatasource):

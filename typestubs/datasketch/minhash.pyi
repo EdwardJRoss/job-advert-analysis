@@ -11,7 +11,7 @@ class MinHash:
         seed: int = 1,
         hashfunc: Callable[[bytes], int] = sha1_hash32,
         hashobj=None,  # Deprecated.
-        hashvalues: Union[np.Array, list] = None,
+        hashvalues: Union[np.ndarray, list] = None,
         permutations=None,
     ) -> None: ...
     def update(self, b: bytes) -> None: ...

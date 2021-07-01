@@ -6,7 +6,7 @@ from typing import Any, Dict, Generator, Optional
 
 import pandas as pd
 
-from lib.io import AtomicFileWriter
+from job_pipeline.lib.io import AtomicFileWriter
 
 
 def ensure_extension(path: Path, extension: Optional[str]) -> Path:

@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -exuo pipefail
 
 # Correctness
-python -m pyflakes src/
+python -m pyflakes job_pipeline/
 
 # Style
-python -m isort -m 3 --trailing-comma -c src/ tests/
-black --check -t py36 src/ tests/
-cd src
-mypy $(find . -name '*.py')
+python -m isort -m 3 --trailing-comma -c job_pipeline/ tests/
+MYPYPATH=./typestubs/ mypy job_pipeline
+black --check -t py36 job_pipeline/ tests/

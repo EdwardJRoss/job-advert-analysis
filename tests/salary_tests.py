@@ -2,7 +2,7 @@ import unittest
 from dataclasses import dataclass
 from typing import Optional
 
-from lib.salary import (
+from job_pipeline.lib.salary import (
     Period,
     extract_salary,
     infer_salary_hours,

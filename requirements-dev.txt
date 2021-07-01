@@ -4,3 +4,5 @@ black
 
 mypy
 data-science-types
+types-requests
+types-six

@@ -3,16 +3,17 @@ import re
 from typing import Union
 
 import bs4
-from lib.normalise import (
+
+from job_pipeline.lib.normalise import (
     WOF_AUS,
     WOF_NZ,
     Geocoder,
     datetime_from_iso_utc,
     html2plain,
 )
-from lib.salary import get_salary_data
-from sources.abstract_datasource import module_name
-from sources.commoncrawl_datasource import CommonCrawlDatasource
+from job_pipeline.lib.salary import get_salary_data
+from job_pipeline.sources.abstract_datasource import module_name
+from job_pipeline.sources.commoncrawl_datasource import CommonCrawlDatasource
 
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 

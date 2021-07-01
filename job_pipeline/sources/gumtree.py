@@ -1,14 +1,14 @@
-from lib.extractlib import parse_js_obj
-from lib.normalise import (
+from job_pipeline.lib.extractlib import parse_js_obj
+from job_pipeline.lib.normalise import (
     WOF_AUS,
     WOF_NZ,
     Geocoder,
     datetime_from_iso_utc,
     html2plain,
 )
-from lib.salary import get_salary_data
-from sources.abstract_datasource import module_name
-from sources.commoncrawl_datasource import CommonCrawlDatasource
+from job_pipeline.lib.salary import get_salary_data
+from job_pipeline.sources.abstract_datasource import module_name
+from job_pipeline.sources.commoncrawl_datasource import CommonCrawlDatasource
 
 AU_GEOCODER = Geocoder(lang="en", filter_country_ids=(WOF_AUS, WOF_NZ))
 

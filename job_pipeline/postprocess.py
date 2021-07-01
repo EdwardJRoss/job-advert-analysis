@@ -6,7 +6,7 @@ from typing import Dict, List
 import numpy as np
 import pandas as pd
 
-from lib.salary import (
+from job_pipeline.lib.salary import (
     Period,
     SalaryRange,
     infer_salary_hours,
