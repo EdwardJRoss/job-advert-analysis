@@ -89,7 +89,7 @@ def salary_unit(text: str) -> Optional[Period]:
 # http://jkorpela.fi/dashes.html
 HYPHEN = "[-~\u00ad\u2010\u2011\u2012\u2013\u2014\u2015\u2053\u207b\u208b\u2212\ufe58\ufe63\uff0d_]"
 
-BLACKLIST = ["days", "day", "nights", "night", "%", "am", "a.m", "pm", "p.m"]
+BLACKLIST = ["days", "day", "nights", "night", "%", "am", "a.m", "pm", "p.m", "a m"]
 BLACKLIST_RE = "(?:" + "|".join(BLACKLIST) + ")"
 NUMBER_RE = fr"""(?:[A-Z][A-Z][A-Z]?)?([\$£€]?\s*\d[\d\s,]*(?:[kK]|\.[\d\s]+)?\s*{BLACKLIST_RE}?)"""
 RANGE_RE = fr"""{NUMBER_RE}\s*(?:{HYPHEN}|to)\s*{NUMBER_RE}"""

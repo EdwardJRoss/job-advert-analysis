@@ -144,6 +144,7 @@ salary_tests = [
     # salarytest("Up to $100000.00 p.a. + Car + $15 - $20k Commission", 100_000, unit=Period.YEAR),
     # salarytest("$30000 plus if working 4 shifts a week", 30_000),
     salarytest("Subject to QLD Anglican Schools EBA 2018"),
+    salarytest('Commission Only, Can earn up to 4k a month.'),#, 4_000), unit=Period.MONTH),
 ]
 
 
