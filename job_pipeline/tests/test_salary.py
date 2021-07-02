@@ -2,7 +2,12 @@ import unittest
 from dataclasses import dataclass
 from typing import Optional
 
+from hypothesis import given, settings
+from hypothesis import strategies as st
+from rstr import Rstr
+
 from job_pipeline.lib.salary import (
+    BLACKLIST_RE,
     Period,
     extract_salary,
     infer_salary_hours,
@@ -11,6 +16,17 @@ from job_pipeline.lib.salary import (
     valid_salary_period,
     valid_salary_range,
 )
+
+
+@st.composite
+def text_from_regex(draw, regexp):
+    random = draw(st.randoms())
+    return Rstr(random).xeger(regexp)
+
+
+@given(text_from_regex(regexp=rf"([\$£€\d\w\s-]|{BLACKLIST_RE})*"))
+def test_extract_salary_types(text):
+    salary_range = extract_salary(text)
 
 
 @dataclass
@@ -144,7 +160,9 @@ salary_tests = [
     # salarytest("Up to $100000.00 p.a. + Car + $15 - $20k Commission", 100_000, unit=Period.YEAR),
     # salarytest("$30000 plus if working 4 shifts a week", 30_000),
     salarytest("Subject to QLD Anglican Schools EBA 2018"),
-    salarytest('Commission Only, Can earn up to 4k a month.'),#, 4_000), unit=Period.MONTH),
+    salarytest(
+        "Commission Only, Can earn up to 4k a month."
+    ),  # , 4_000), unit=Period.MONTH),
 ]
 
 

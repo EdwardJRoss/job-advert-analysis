@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-black -t py36 src/ tests/
-python -m isort -m 3 --trailing-comma src/ tests/
+black -t py36 job_pipeline/
+python -m isort -m 3 --trailing-comma job_pipeline/

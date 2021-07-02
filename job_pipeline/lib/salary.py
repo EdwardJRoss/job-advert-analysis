@@ -1,3 +1,4 @@
+import logging
 import re
 from enum import IntEnum
 from typing import Dict, List, Optional, Set, Tuple, TypedDict
@@ -89,7 +90,19 @@ def salary_unit(text: str) -> Optional[Period]:
 # http://jkorpela.fi/dashes.html
 HYPHEN = "[-~\u00ad\u2010\u2011\u2012\u2013\u2014\u2015\u2053\u207b\u208b\u2212\ufe58\ufe63\uff0d_]"
 
-BLACKLIST = ["days", "day", "nights", "night", "%", "am", "a.m", "pm", "p.m", "a m"]
+BLACKLIST = [
+    "days",
+    "day",
+    "nights",
+    "night",
+    "%",
+    "am",
+    "a.m",
+    "pm",
+    "p.m",
+    "a m",
+    "0a0m",
+]
 BLACKLIST_RE = "(?:" + "|".join(BLACKLIST) + ")"
 NUMBER_RE = fr"""(?:[A-Z][A-Z][A-Z]?)?([\$£€]?\s*\d[\d\s,]*(?:[kK]|\.[\d\s]+)?\s*{BLACKLIST_RE}?)"""
 RANGE_RE = fr"""{NUMBER_RE}\s*(?:{HYPHEN}|to)\s*{NUMBER_RE}"""
@@ -123,6 +136,9 @@ def extract_salary(text: str) -> Tuple[Optional[float], Optional[float]]:
     If there is only a single salary then returns None for max
       extract_salary("$55 - $65 per hour") == (55, 65)
       extract_salary("$40.01 ph") == (40.01, None)
+
+    pre: isinstance(text, str)
+    post: len(__return__) == 2 and (isinstance(__return__[0], float) or __return__[0] is None) and (isinstance(__return__[1], float) or __return__[1] is None)
     """
     range_matches: List[Tuple[str, str]] = [
         (low, high)
@@ -146,9 +162,12 @@ def extract_salary(text: str) -> Tuple[Optional[float], Optional[float]]:
             return parse_number(match), None
     if matches:
         match = matches[0]
-        ans = parse_number(match)
-        if not is_year(ans):
-            return ans, None
+        try:
+            ans = parse_number(match)
+            if not is_year(ans):
+                return ans, None
+        except ValueError as e:
+            logging.warning("%s when parsing %s" % (e, match))
     return (None, None)
 
 
