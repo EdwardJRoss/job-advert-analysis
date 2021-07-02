@@ -3,6 +3,8 @@ import logging
 from pathlib import Path
 from typing import List
 
+import typer
+
 import job_pipeline.sources.careers_vic
 import job_pipeline.sources.cgcrecruitment
 import job_pipeline.sources.csiro
@@ -19,6 +21,11 @@ import job_pipeline.sources.launchrecruitment
 import job_pipeline.sources.probono
 import job_pipeline.sources.seek
 from job_pipeline.sources.abstract_datasource import AbstractDatasource
+
+RAW_DATA_DIR = Path("./data/01_raw")
+EXTRACT_DATA_DIR = Path("./data/02_primary")
+NORMALISED_DATA_DIR = Path("./data/03_secondary")
+
 
 DATASOURCES: List[AbstractDatasource] = [
     job_pipeline.sources.careers_vic.Datasource(),
@@ -39,10 +46,47 @@ DATASOURCES: List[AbstractDatasource] = [
 ]
 
 
-DEST_DIR = Path("../data/01_raw")
+app = typer.Typer()
+
+
+@app.command()
+def build(overwrite: bool = False):
+    """Run the whole pipeline"""
+    fetch(overwrite)
+    extract(overwrite)
+    normalise(overwrite)
+
+
+@app.command()
+def fetch(overwrite: bool = False):
+    """1 - Fetch the data"""
+    for datasource in DATASOURCES:
+        datasource.download(RAW_DATA_DIR / datasource.name, overwrite=overwrite)
+
+
+@app.command()
+def extract(overwrite: bool = False):
+    """2 - Extract Fetched Data"""
+    for datasource in DATASOURCES:
+        datasource.extract_all(
+            RAW_DATA_DIR / datasource.name,
+            EXTRACT_DATA_DIR / datasource.name,
+            overwrite=overwrite,
+        )
+
+
+@app.command()
+def normalise(overwrite: bool = False):
+    """3 - Normalise Extracted Data"""
+    for datasource in DATASOURCES:
+        datasource.normalise_all(
+            EXTRACT_DATA_DIR / datasource.name,
+            NORMALISED_DATA_DIR / datasource.name,
+            overwrite=overwrite,
+        )
+
 
 if __name__ == "__main__":
+    # TODO: Logging configuration
     logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
-
-    for datasource in DATASOURCES:
-        datasource.download(DEST_DIR / datasource.name)
+    app()

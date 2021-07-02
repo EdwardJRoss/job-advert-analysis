@@ -27,7 +27,7 @@ If you do not wish to use Kaggle datasources then remove them from `DATASOURCES`
 
 # Runnning
 
-You can run the whole pipeline in the [src](/src) folder by running `./run.sh`, or run each of the numbered steps independently.
+You can run the whole pipeline using `python -m job_pipeline build`.
 
 You need a [Placeholder](https://github.com/pelias/placeholder) server running on Port 3000 of localhost for locatino normalisation.
 Follow [these instructions](https://geocode.earth/blog/2019/almost-one-line-coarse-geocoding) for a simple way to do this using Docker.
