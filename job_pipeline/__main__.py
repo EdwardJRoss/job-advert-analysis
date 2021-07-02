@@ -45,8 +45,12 @@ DATASOURCES: List[AbstractDatasource] = [
     job_pipeline.sources.kaggle_datascienceau_201910.Datasource(),
 ]
 
+import click
+class NaturalOrderGroup(click.Group):
+    def list_commands(self, ctx):
+        return self.commands.keys()
 
-app = typer.Typer()
+app = typer.Typer(cls=NaturalOrderGroup)
 
 
 @app.command()
