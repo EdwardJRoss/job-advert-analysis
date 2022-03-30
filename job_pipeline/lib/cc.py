@@ -17,7 +17,7 @@ INDEXES_URL = "https://index.commoncrawl.org/collinfo.json"
 
 # TODO: This should all be wrapped in an object rather than a global
 CC_DATA_URL = "https://data.commoncrawl.org/"
-RETRY_STRATEGY = Retry(total=5, backoff_factor=1, status_forcelist=set([504, 500]))
+RETRY_STRATEGY = Retry(total=10, backoff_factor=1, status_forcelist=set([504, 500, 503]))
 ADAPTER = HTTPAdapter(max_retries=RETRY_STRATEGY)
 CC_HTTP = requests.Session()
 CC_HTTP.mount(CC_DATA_URL, ADAPTER)
