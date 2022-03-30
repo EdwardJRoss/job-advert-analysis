@@ -6,7 +6,7 @@ from typing import Dict, Generator, List, Optional, Union
 import requests
 from mypy_extensions import TypedDict
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util.retry import Retry
 
 
 def jsonl_loads(jsonl):
